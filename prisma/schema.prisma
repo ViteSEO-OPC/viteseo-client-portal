@@ -55,6 +55,7 @@ model Quote {
   currency        String      @default("PHP") @db.VarChar(3)
   notes           String?     @db.Text
   contentHash     String?     @map("content_hash") @db.VarChar(64)
+  routePath       String?     @map("route_path") @db.VarChar(255) // Path to custom quote page
   createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamptz
 

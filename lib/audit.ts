@@ -17,7 +17,11 @@ export type AuditEventType =
   | 'QUOTE_CREATED'
   | 'QUOTE_UPDATED'
   | 'QUOTE_SENT'
+  | 'QUOTE_SYNCED'
+  | 'QUOTE_VERSIONED'
   | 'RATE_LIMIT_HIT'
+  | 'CODE_VERIFIED'
+  | 'CODE_INVALID'
 
 export type ActorType = 'client' | 'admin' | 'system' | 'anonymous'
 

@@ -31,7 +31,8 @@ export interface PDFGenerationResult {
 export async function generateQuotePDF(
   quoteId: string,
   clientId: string,
-  renderToken: string
+  renderToken: string,
+  routePath?: string | null
 ): Promise<PDFGenerationResult> {
   const browser = await getBrowser()
   const context = await browser.newContext({
@@ -43,9 +44,14 @@ export async function generateQuotePDF(
     const page = await context.newPage()
 
     // Navigate to the dedicated PDF render page (not API route to avoid recursion)
+    // Use the quote's routePath if available, otherwise fall back to default render page
     const baseUrl = process.env.PDF_RENDER_BASE_URL || process.env.APP_URL || 'http://localhost:3000'
+    
+    // Always use the PDF render page with token for security
+    // The render page will load the appropriate quote content based on the token
+    const renderUrl = `${baseUrl}/portal/pdf/render?token=${renderToken}`
 
-    await page.goto(`${baseUrl}/portal/pdf/render?token=${renderToken}`, {
+    await page.goto(renderUrl, {
       waitUntil: 'networkidle',
       timeout: 30000,
     })

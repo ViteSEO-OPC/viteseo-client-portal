@@ -1,0 +1,66 @@
+{
+  "quoteNumber": "Q-2026-0001",
+  "version": 1,
+  "validUntil": "2026-01-31T23:59:59Z",
+  "total": "80000",
+  "currency": "PHP",
+  "notes": "Website Development Quotation - Phase 1 Professional Proposal. Quotation valid for 15 days from issue date (January 16, 2026). Payment structure: 50% down payment upon acceptance, 30% upon design approval, 20% before launch.",
+  "items": [
+    {
+      "id": "1",
+      "name": "Enterprise-Grade E-Commerce Platform",
+      "description": "Complete e-commerce infrastructure including product management, inventory control, shopping cart, checkout optimization, customer accounts, order management, admin panel with sales analytics and reporting",
+      "quantity": 1,
+      "unitPrice": "25000",
+      "sortOrder": 0
+    },
+    {
+      "id": "2",
+      "name": "Premium Website Design & Development",
+      "description": "Custom UI/UX architecture, responsive framework (desktop/tablet/mobile), homepage motion design, brand identity integration, conversion optimization features, speed & performance optimization",
+      "quantity": 1,
+      "unitPrice": "15000",
+      "sortOrder": 1
+    },
+    {
+      "id": "3",
+      "name": "Live Reviews & Community Engagement",
+      "description": "Multi-format review system with star ratings, user profiles, review management tools, interactive comment threads, review analytics, and social proof elements",
+      "quantity": 1,
+      "unitPrice": "8000",
+      "sortOrder": 2
+    },
+    {
+      "id": "4",
+      "name": "Professional WordPress CMS",
+      "description": "Custom WordPress installation, Elementor/WPBakery page builder, 15+ training videos, 40-page documentation, 2-hour live training session, 30-day post-launch support",
+      "quantity": 1,
+      "unitPrice": "10000",
+      "sortOrder": 3
+    },
+    {
+      "id": "5",
+      "name": "Secure Payment Integration (PayMongo)",
+      "description": "GCash, QR Ph, Credit/Debit Cards (Visa, Mastercard, JCB), Bank Transfers, PCI-DSS compliance, fraud detection, transaction dashboard, automated processes",
+      "quantity": 1,
+      "unitPrice": "8000",
+      "sortOrder": 4
+    },
+    {
+      "id": "6",
+      "name": "Social Media & Real-Time Support",
+      "description": "Facebook Messenger live chat integration, automated greeting messages, dynamic social media content display with automatic Facebook feed integration",
+      "quantity": 1,
+      "unitPrice": "5000",
+      "sortOrder": 5
+    },
+    {
+      "id": "7",
+      "name": "SEO & Performance Optimization",
+      "description": "Technical SEO implementation, Core Web Vitals optimization (LCP < 2.5s), Google Analytics 4 setup, XML sitemap, Schema markup, image compression & WebP conversion",
+      "quantity": 1,
+      "unitPrice": "9000",
+      "sortOrder": 6
+    }
+  ]
+}

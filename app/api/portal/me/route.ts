@@ -18,10 +18,10 @@ export async function GET(request: NextRequest) {
       return createErrorResponse('RATE_LIMITED', requestId)
     }
 
-    // Check session
+    // Check session - return 404 for unauthenticated requests (per security spec)
     const session = await getSession()
     if (!session) {
-      return createErrorResponse('SESSION_EXPIRED', requestId)
+      return createErrorResponse('NOT_FOUND', requestId)
     }
 
     // Get client data
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     })
 
     if (!client || client.status !== 'active') {
-      return createErrorResponse('SESSION_EXPIRED', requestId)
+      return createErrorResponse('NOT_FOUND', requestId)
     }
 
     return Response.json({

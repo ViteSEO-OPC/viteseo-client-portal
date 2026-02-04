@@ -2,8 +2,19 @@
 
 import { cn } from '@/lib/utils'
 import { ReactNode } from 'react'
+import Link from 'next/link'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-interface Column<T> {
+export interface Column<T> {
   key: string
   header: string
   align?: 'left' | 'center' | 'right'
@@ -27,56 +38,50 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (data.length === 0) {
     return (
-      <div className="text-muted-foreground text-center py-8">
+      <div className="text-muted-foreground text-center py-12 border rounded-md bg-background">
         {emptyMessage}
       </div>
     )
   }
 
   return (
-    <div className={cn('overflow-x-auto', className)}>
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-border">
+    <div className={cn('rounded-md border bg-background', className)}>
+      <Table>
+        <TableHeader>
+          <TableRow>
             {columns.map((column) => (
-              <th
+              <TableHead
                 key={column.key}
                 className={cn(
-                  'py-3 px-2 font-semibold text-muted-foreground',
                   column.align === 'center' && 'text-center',
-                  column.align === 'right' && 'text-right',
-                  (!column.align || column.align === 'left') && 'text-left'
+                  column.align === 'right' && 'text-right'
                 )}
               >
                 {column.header}
-              </th>
+              </TableHead>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {data.map((item) => (
-            <tr
-              key={keyExtractor(item)}
-              className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors"
-            >
+            <TableRow key={keyExtractor(item)}>
               {columns.map((column) => (
-                <td
+                <TableCell
                   key={column.key}
                   className={cn(
-                    'py-3 px-2',
                     column.align === 'center' && 'text-center',
                     column.align === 'right' && 'text-right'
                   )}
                 >
                   {column.render
                     ? column.render(item)
-                    : (item as Record<string, unknown>)[column.key] as ReactNode}
-                </td>
+                    : (item as any)[column.key]}
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }
@@ -106,26 +111,34 @@ export function Pagination({
   }
 
   return (
-    <div className="flex justify-center gap-2 mt-6">
-      {currentPage > 1 && (
-        <a
-          href={buildUrl(currentPage - 1)}
-          className="px-3 py-1 border border-border rounded text-sm hover:bg-muted text-foreground"
-        >
-          Previous
-        </a>
-      )}
-      <span className="px-3 py-1 text-sm text-muted-foreground">
+    <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex-1 text-sm text-muted-foreground">
         Page {currentPage} of {totalPages}
-      </span>
-      {currentPage < totalPages && (
-        <a
-          href={buildUrl(currentPage + 1)}
-          className="px-3 py-1 border border-border rounded text-sm hover:bg-muted text-foreground"
+      </div>
+      <div className="space-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={currentPage <= 1}
+          asChild
         >
-          Next
-        </a>
-      )}
+          <Link href={currentPage <= 1 ? '#' : buildUrl(currentPage - 1)}>
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Previous
+          </Link>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={currentPage >= totalPages}
+          asChild
+        >
+          <Link href={currentPage >= totalPages ? '#' : buildUrl(currentPage + 1)}>
+            Next
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Link>
+        </Button>
+      </div>
     </div>
   )
 }
@@ -137,11 +150,11 @@ interface StatusBadgeProps {
 }
 
 const variantStyles = {
-  success: 'bg-green-500/15 text-green-500',
-  warning: 'bg-yellow-500/15 text-yellow-500',
-  error: 'bg-red-500/15 text-red-500',
-  info: 'bg-blue-500/15 text-blue-500',
-  default: 'bg-muted text-muted-foreground',
+  success: 'bg-green-500/15 text-green-500 hover:bg-green-500/25',
+  warning: 'bg-yellow-500/15 text-yellow-500 hover:bg-yellow-500/25',
+  error: 'bg-red-500/15 text-red-500 hover:bg-red-500/25',
+  info: 'bg-blue-500/15 text-blue-500 hover:bg-blue-500/25',
+  default: 'bg-muted text-muted-foreground hover:bg-muted/80',
 }
 
 export function StatusBadge({
@@ -152,7 +165,7 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        'inline-block px-2 py-1 text-xs font-medium rounded',
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         variantStyles[variant],
         className
       )}

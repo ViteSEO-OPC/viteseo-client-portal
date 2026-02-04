@@ -28,7 +28,6 @@ export async function createSession(
       },
       data: {
         revokedAt: new Date(),
-        revokedReason: 'session_rotation',
       },
     })
   }
@@ -52,7 +51,6 @@ export async function createSession(
       },
       data: {
         revokedAt: new Date(),
-        revokedReason: 'concurrent_limit',
       },
     })
   }
@@ -69,7 +67,7 @@ export async function createSession(
       ipAddress,
       userAgent,
       expiresAt,
-      lastActivityAt: new Date(),
+      lastActiveAt: new Date(),
     },
   })
 
@@ -113,7 +111,7 @@ export async function getSession(): Promise<SessionData | null> {
 
   // Check if access code is still valid
   if (
-    session.accessCode.expiresAt < new Date() ||
+    (session.accessCode.expiresAt && session.accessCode.expiresAt < new Date()) ||
     session.accessCode.revokedAt !== null
   ) {
     await revokeSession(session.id)

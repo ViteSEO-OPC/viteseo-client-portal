@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/db'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Users, FileText, Activity } from 'lucide-react'
+import { QuotesTable } from './quotes/quotes-table'
 
 export default async function AdminDashboard() {
   const [clientCount, quoteCount, activeSessionCount] = await Promise.all([
@@ -20,6 +22,9 @@ export default async function AdminDashboard() {
       client: {
         select: { companyName: true },
       },
+      _count: {
+        select: { items: true },
+      },
     },
   })
 
@@ -30,33 +35,45 @@ export default async function AdminDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Active Clients
             </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-foreground">{clientCount}</p>
+            <div className="text-2xl font-bold text-foreground">{clientCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Total active clients in the system
+            </p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Quotes
             </CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-foreground">{quoteCount}</p>
+            <div className="text-2xl font-bold text-foreground">{quoteCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Across all clients
+            </p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Active Sessions
             </CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-foreground">{activeSessionCount}</p>
+            <div className="text-2xl font-bold text-foreground">{activeSessionCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Currently valid sessions
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -66,39 +83,8 @@ export default async function AdminDashboard() {
         <CardHeader>
           <CardTitle>Recent Quotes</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {recentQuotes.length === 0 ? (
-              <p className="text-muted-foreground">No quotes yet</p>
-            ) : (
-              recentQuotes.map((quote) => (
-                <div
-                  key={quote.id}
-                  className="flex justify-between items-center p-3 bg-muted/40 rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{quote.quoteNumber}</p>
-                    <p className="text-sm text-muted-foreground">{quote.client.companyName}</p>
-                  </div>
-                  <div className="text-right">
-                    <span
-                      className={`inline-block px-2 py-1 text-xs font-medium rounded ${
-                        quote.status === 'accepted'
-                          ? 'bg-green-500/15 text-green-500'
-                          : quote.status === 'sent' || quote.status === 'viewed'
-                          ? 'bg-blue-500/15 text-blue-500'
-                          : quote.status === 'rejected'
-                          ? 'bg-red-500/15 text-red-500'
-                          : 'bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      {quote.status}
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+        <CardContent className="p-0 border-none shadow-none">
+           <QuotesTable data={recentQuotes} />
         </CardContent>
       </Card>
     </div>

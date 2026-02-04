@@ -17,20 +17,22 @@ export async function GET(request: NextRequest) {
       return createErrorResponse('RATE_LIMITED', requestId)
     }
 
-    // Check session
+    // Check session - return 404 for unauthenticated requests (per security spec)
     const session = await getSession()
     if (!session) {
-      return createErrorResponse('SESSION_EXPIRED', requestId)
+      return createErrorResponse('NOT_FOUND', requestId)
     }
 
-    // Get latest viewable quote
+    // Get latest viewable quote (including accepted for continued access)
     const quote = await prisma.quote.findFirst({
       where: {
         clientId: session.clientId,
-        status: { in: ['sent', 'viewed'] },
+        status: { in: ['sent', 'viewed', 'accepted', 'rejected'] },
       },
       include: {
-        items: true,
+        items: {
+          orderBy: { sortOrder: 'asc' },
+        },
       },
       orderBy: { createdAt: 'desc' },
     })
@@ -39,18 +41,21 @@ export async function GET(request: NextRequest) {
       return createErrorResponse('QUOTE_NOT_FOUND', requestId)
     }
 
-    // Check if quote is expired
-    if (quote.validUntil < new Date()) {
-      return createErrorResponse('QUOTE_EXPIRED', requestId)
-    }
+    // Check if quote is expired (but still return data for accepted/rejected)
+    const isExpired = quote.validUntil < new Date()
+    const effectiveStatus = isExpired && quote.status !== 'accepted' && quote.status !== 'rejected'
+      ? 'expired'
+      : quote.status
 
     return Response.json({
       id: quote.id,
       quoteNumber: quote.quoteNumber,
       version: quote.version,
-      status: quote.status,
+      status: effectiveStatus,
       validUntil: quote.validUntil.toISOString(),
       total: quote.total.toString(),
+      currency: quote.currency,
+      routePath: quote.routePath,
       items: quote.items.map((item) => ({
         id: item.id,
         name: item.name,
