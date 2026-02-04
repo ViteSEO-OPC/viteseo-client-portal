@@ -1,6 +1,8 @@
 const { withSentryConfig } = require('@sentry/nextjs')
 
 /** @type {import('next').NextConfig} */
+const isDev = process.env.NODE_ENV !== 'production'
+
 const nextConfig = {
   experimental: {
     serverActions: {
@@ -41,7 +43,10 @@ const nextConfig = {
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: https: blob:",
-            "connect-src 'self' https://clerk.com https://*.clerk.accounts.dev https://*.sentry.io wss:",
+            [
+              "connect-src 'self' https://clerk.com https://*.clerk.accounts.dev https://*.sentry.io wss:",
+              ...(isDev ? ['http://127.0.0.1:7244'] : []),
+            ].join(' '),
             "frame-src 'self' https://clerk.com https://*.clerk.accounts.dev",
             "worker-src 'self' blob:",
             "frame-ancestors 'none'",

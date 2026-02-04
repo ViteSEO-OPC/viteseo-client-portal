@@ -10,14 +10,25 @@ import { verifyOTP, addSecurityDelay } from '@/lib/auth/otp'
 import { createSession } from '@/lib/auth/session'
 import { setCSRFToken } from '@/lib/auth/csrf'
 
+export const runtime = 'nodejs'
+
 // Lockout configuration
 const MAX_FAILED_ATTEMPTS = 5
 const LOCKOUT_DURATION_MS = 30 * 60 * 1000 // 30 minutes
+
+// #region agent log
+const debugLog = (msg: string, data: object) => {
+  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-code/route.ts',message:msg,data,timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
+}
+// #endregion
 
 export async function POST(request: NextRequest) {
   const requestId = generateRequestId()
   const ip = await getClientIP()
   const userAgent = await getUserAgent()
+  // #region agent log
+  debugLog('POST verify-code called', { requestId, ip })
+  // #endregion
 
   try {
     // Rate limiting
@@ -46,6 +57,9 @@ export async function POST(request: NextRequest) {
 
     const { code } = parsed.data
     const normalizedCode = code.toUpperCase().trim()
+    // #region agent log
+    debugLog('code parsed', { code: normalizedCode, length: normalizedCode.length })
+    // #endregion
 
     // Check if code exists in database (simple lookup for plain code)
     // First try plain code match, then fall back to hash verification if codeHash exists
@@ -73,6 +87,10 @@ export async function POST(request: NextRequest) {
         }
       }
     }
+
+    // #region agent log
+    debugLog('accessCode lookup result', { found: !!accessCode, clientSlug: accessCode?.clientSlug, isActive: accessCode?.isActive })
+    // #endregion
 
     // Code not found - add security delay and return 404 (per spec)
     if (!accessCode) {
@@ -201,6 +219,10 @@ export async function POST(request: NextRequest) {
       ipAddress: ip,
       userAgent,
     })
+
+    // #region agent log
+    debugLog('verify success, returning redirect', { clientSlug: accessCode.clientSlug, redirect: `/portal/${accessCode.clientSlug}` })
+    // #endregion
 
     // Redirect to client's portal
     return NextResponse.json({

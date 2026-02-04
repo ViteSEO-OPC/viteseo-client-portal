@@ -12,17 +12,34 @@ export function EnterCodeForm() {
   const [code, setCode] = useState('')
   const verifyCode = useVerifyCode()
 
+  // #region agent log
+  const debugLog = (msg: string, data: object) => {
+    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'enter-code-form.tsx',message:msg,data,timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
+  }
+  // #endregion
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // #region agent log
+    debugLog('handleSubmit called', { code, codeLength: code.length, isPending: verifyCode.isPending })
+    // #endregion
 
     verifyCode.mutate(
       { code: code.toUpperCase().trim() },
       {
         onSuccess: (data) => {
+          // #region agent log
+          debugLog('verifyCode onSuccess', { data, redirect: data.redirect })
+          // #endregion
           if (data.redirect) {
             router.push(data.redirect)
           }
         },
+        // #region agent log
+        onError: (error) => {
+          debugLog('verifyCode onError', { error: error.message })
+        },
+        // #endregion
       }
     )
   }
@@ -41,7 +58,11 @@ export function EnterCodeForm() {
             type="text"
             value={code}
             onChange={(e) => {
-                setCode(e.target.value.toUpperCase())
+                const newCode = e.target.value.toUpperCase()
+                // #region agent log
+                debugLog('code onChange', { newCode, length: newCode.length, willDisable: newCode.length !== 8 })
+                // #endregion
+                setCode(newCode)
                 verifyCode.reset()
             }}
             placeholder="XXX-XXX-XX"
