@@ -1,0 +1,76 @@
+const { withSentryConfig } = require('@sentry/nextjs')
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+
+  // Security headers
+  headers: async () => [
+    {
+      source: '/:path*',
+      headers: [
+        {
+          key: 'X-Robots-Tag',
+          value: 'noindex, nofollow, noarchive',
+        },
+        {
+          key: 'X-Frame-Options',
+          value: 'DENY',
+        },
+        {
+          key: 'X-Content-Type-Options',
+          value: 'nosniff',
+        },
+        {
+          key: 'Referrer-Policy',
+          value: 'strict-origin-when-cross-origin',
+        },
+        {
+          key: 'Permissions-Policy',
+          value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+        },
+        {
+          key: 'Content-Security-Policy',
+          value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.com https://*.clerk.accounts.dev",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' data: https: blob:",
+            "connect-src 'self' https://clerk.com https://*.clerk.accounts.dev https://*.sentry.io wss:",
+            "frame-src 'self' https://clerk.com https://*.clerk.accounts.dev",
+            "frame-ancestors 'none'",
+          ].join('; '),
+        },
+      ],
+    },
+  ],
+
+  // Webpack configuration for argon2
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push({
+        argon2: 'commonjs argon2',
+      })
+    }
+    return config
+  },
+}
+
+// Sentry configuration
+const sentryWebpackPluginOptions = {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: true,
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+}
+
+module.exports = process.env.SENTRY_DSN
+  ? withSentryConfig(nextConfig, sentryWebpackPluginOptions)
+  : nextConfig
