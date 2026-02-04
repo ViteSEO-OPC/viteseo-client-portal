@@ -54,6 +54,7 @@ async function basicMiddleware(req: NextRequest) {
 }
 
 async function clerkMiddleware(req: NextRequest) {
+  const path = req.nextUrl.pathname
   // Dynamic import to avoid initialization when not configured
   const { clerkMiddleware: createClerkMiddleware, createRouteMatcher } = await import('@clerk/nextjs/server')
 

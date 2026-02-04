@@ -61,16 +61,25 @@ const nextConfig = {
   },
 }
 
-// Sentry configuration
+// Sentry configuration - only apply if SENTRY_DSN is set
 const sentryWebpackPluginOptions = {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  silent: true,
+  org: process.env.SENTRY_ORG || 'vite-seo',
+  project: process.env.SENTRY_PROJECT || 'viteseo-portal',
+  silent: !process.env.CI,
+}
+
+const sentryOptions = {
   widenClientFileUpload: true,
   hideSourceMaps: true,
-  disableLogger: true,
+  tunnelRoute: '/monitoring',
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+    automaticVercelMonitors: true,
+  },
 }
 
 module.exports = process.env.SENTRY_DSN
-  ? withSentryConfig(nextConfig, sentryWebpackPluginOptions)
+  ? withSentryConfig(nextConfig, sentryWebpackPluginOptions, sentryOptions)
   : nextConfig
