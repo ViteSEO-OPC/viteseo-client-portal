@@ -43,6 +43,7 @@ const nextConfig = {
             "img-src 'self' data: https: blob:",
             "connect-src 'self' https://clerk.com https://*.clerk.accounts.dev https://*.sentry.io wss:",
             "frame-src 'self' https://clerk.com https://*.clerk.accounts.dev",
+            "worker-src 'self' blob:",
             "frame-ancestors 'none'",
           ].join('; '),
         },

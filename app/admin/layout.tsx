@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn, UserButton } from '@clerk/nextjs'
+import { SignedIn, SignedOut, RedirectToSignIn, UserButton } from '@clerk/nextjs'
 
 export default function AdminLayout({
   children,
@@ -7,7 +7,7 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
+    <>
       <SignedIn>
         <div className="min-h-screen bg-background">
           <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -41,7 +41,7 @@ export default function AdminLayout({
                 <div className="w-full flex-1 md:w-auto md:flex-none">
                   {/* Add search here if needed */}
                 </div>
-                <UserButton afterSignOutUrl="/admin/sign-in" appearance={{
+                <UserButton appearance={{
                     elements: {
                         userButtonAvatarBox: "h-8 w-8"
                     }
@@ -55,6 +55,6 @@ export default function AdminLayout({
       <SignedOut>
         <RedirectToSignIn />
       </SignedOut>
-    </ClerkProvider>
+    </>
   )
 }
