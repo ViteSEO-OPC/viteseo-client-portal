@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Timeline } from '@/components/ui/timeline'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useUpdateQuote, useSendQuote, useGenerateAccessCode } from '@/lib/query/hooks'
 
@@ -51,11 +52,23 @@ interface QuoteData {
   accessCodes: AccessCode[]
 }
 
-interface QuoteDetailViewProps {
-  quote: QuoteData
+interface ActivityLog {
+  id: string
+  eventType: string
+  action: string
+  actorType: string
+  actorId?: string | null
+  ipAddress?: string | null
+  createdAt: string
+  meta?: Record<string, unknown> | null
 }
 
-export function QuoteDetailView({ quote }: QuoteDetailViewProps) {
+interface QuoteDetailViewProps {
+  quote: QuoteData
+  activityLogs: ActivityLog[]
+}
+
+export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
   const router = useRouter()
 
   // TanStack Query mutations
@@ -392,6 +405,16 @@ export function QuoteDetailView({ quote }: QuoteDetailViewProps) {
               </tbody>
             </table>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Activity Timeline */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Activity Timeline</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Timeline events={activityLogs} />
         </CardContent>
       </Card>
 

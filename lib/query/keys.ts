@@ -27,8 +27,24 @@ export const queryKeys = {
   accessCodes: {
     all: ['accessCodes'] as const,
     lists: () => [...queryKeys.accessCodes.all, 'list'] as const,
-    list: (filters?: { clientId?: string }) =>
+    list: (filters?: { clientId?: string; active?: string }) =>
       [...queryKeys.accessCodes.lists(), filters] as const,
+  },
+
+  // Audit log keys
+  auditLogs: {
+    all: ['auditLogs'] as const,
+    lists: () => [...queryKeys.auditLogs.all, 'list'] as const,
+    list: (filters?: { eventType?: string; actorType?: string }) =>
+      [...queryKeys.auditLogs.lists(), filters] as const,
+  },
+
+  // Session keys (admin view)
+  sessions: {
+    all: ['sessions'] as const,
+    lists: () => [...queryKeys.sessions.all, 'list'] as const,
+    list: (filters?: { clientId?: string; active?: string }) =>
+      [...queryKeys.sessions.lists(), filters] as const,
   },
 
   // Portal keys (client-side portal)

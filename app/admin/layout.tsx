@@ -35,6 +35,24 @@ export default function AdminLayout({
                   >
                     Quotes
                   </Link>
+                  <Link
+                    href="/admin/access-codes"
+                    className="transition-colors hover:text-foreground/80 text-foreground/60"
+                  >
+                    Access Codes
+                  </Link>
+                  <Link
+                    href="/admin/sessions"
+                    className="transition-colors hover:text-foreground/80 text-foreground/60"
+                  >
+                    Sessions
+                  </Link>
+                  <Link
+                    href="/admin/audit-logs"
+                    className="transition-colors hover:text-foreground/80 text-foreground/60"
+                  >
+                    Audit Logs
+                  </Link>
                 </nav>
               </div>
               <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">

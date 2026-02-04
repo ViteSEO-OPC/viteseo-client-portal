@@ -11,6 +11,10 @@ export {
   useUpdateQuote,
   useSendQuote,
   useGenerateAccessCode,
+  useRevokeAccessCode,
+  useAuditLogs,
+  useSessions,
+  useRevokeSession,
 } from './admin'
 
 // Portal hooks

@@ -289,3 +289,111 @@ export function useGenerateAccessCode() {
     },
   })
 }
+
+/**
+ * Revoke an access code
+ */
+export function useRevokeAccessCode() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (codeId: string) =>
+      api.delete<{ success: boolean }>(`/api/admin/access-codes/${codeId}`, false),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.accessCodes.lists() })
+    },
+  })
+}
+
+// ============================================================================
+// AUDIT LOG HOOKS
+// ============================================================================
+
+interface AuditLogFilters {
+  eventType?: string
+  actorType?: string
+  limit?: number
+  offset?: number
+}
+
+interface AuditLogResponse {
+  logs: unknown[]
+  total: number
+  limit: number
+  offset: number
+}
+
+/**
+ * Fetch audit logs with filters
+ */
+export function useAuditLogs(
+  filters?: AuditLogFilters,
+  options?: Omit<UseQueryOptions<AuditLogResponse>, 'queryKey' | 'queryFn'>
+) {
+  const params = new URLSearchParams()
+  if (filters?.eventType) params.set('eventType', filters.eventType)
+  if (filters?.actorType) params.set('actorType', filters.actorType)
+  if (filters?.limit) params.set('limit', filters.limit.toString())
+  if (filters?.offset) params.set('offset', filters.offset.toString())
+  const queryString = params.toString() ? `?${params.toString()}` : ''
+
+  return useQuery({
+    queryKey: queryKeys.auditLogs.list(filters),
+    queryFn: () => api.get<AuditLogResponse>(`/api/admin/audit-logs${queryString}`),
+    ...options,
+  })
+}
+
+// ============================================================================
+// SESSION HOOKS
+// ============================================================================
+
+interface SessionFilters {
+  clientId?: string
+  active?: string
+  limit?: number
+  offset?: number
+}
+
+interface SessionResponse {
+  sessions: unknown[]
+  total: number
+  limit: number
+  offset: number
+}
+
+/**
+ * Fetch sessions with filters
+ */
+export function useSessions(
+  filters?: SessionFilters,
+  options?: Omit<UseQueryOptions<SessionResponse>, 'queryKey' | 'queryFn'>
+) {
+  const params = new URLSearchParams()
+  if (filters?.clientId) params.set('clientId', filters.clientId)
+  if (filters?.active) params.set('active', filters.active)
+  if (filters?.limit) params.set('limit', filters.limit.toString())
+  if (filters?.offset) params.set('offset', filters.offset.toString())
+  const queryString = params.toString() ? `?${params.toString()}` : ''
+
+  return useQuery({
+    queryKey: queryKeys.sessions.list(filters),
+    queryFn: () => api.get<SessionResponse>(`/api/admin/sessions${queryString}`),
+    ...options,
+  })
+}
+
+/**
+ * Revoke a session
+ */
+export function useRevokeSession() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (sessionId: string) =>
+      api.delete<{ success: boolean }>(`/api/admin/sessions/${sessionId}`, false),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.sessions.lists() })
+    },
+  })
+}

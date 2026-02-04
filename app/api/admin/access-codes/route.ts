@@ -26,27 +26,52 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const clientId = searchParams.get('clientId')
+    const active = searchParams.get('active')
+    const search = searchParams.get('search')
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100)
+    const offset = parseInt(searchParams.get('offset') || '0')
 
-    const accessCodes = await prisma.accessCode.findMany({
-      where: clientId ? { clientId } : undefined,
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        clientId: true,
-        quoteId: true,
-        codeHint: true,
-        expiresAt: true,
-        maxUses: true,
-        usedCount: true,
-        revokedAt: true,
-        createdAt: true,
-        client: {
-          select: { companyName: true },
+    const where: Record<string, unknown> = {}
+    if (clientId) where.clientId = clientId
+    if (active === 'true') {
+      where.expiresAt = { gt: new Date() }
+      where.revokedAt = null
+    }
+    if (search) {
+      where.OR = [
+        { codeHint: { contains: search, mode: 'insensitive' } },
+        { client: { companyName: { contains: search, mode: 'insensitive' } } },
+      ]
+    }
+
+    const [accessCodes, total] = await Promise.all([
+      prisma.accessCode.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: offset,
+        take: limit,
+        select: {
+          id: true,
+          clientId: true,
+          quoteId: true,
+          codeHint: true,
+          expiresAt: true,
+          maxUses: true,
+          usedCount: true,
+          revokedAt: true,
+          createdAt: true,
+          client: {
+            select: { companyName: true },
+          },
+          quote: {
+            select: { quoteNumber: true },
+          },
         },
-      },
-    })
+      }),
+      prisma.accessCode.count({ where }),
+    ])
 
-    return Response.json(accessCodes)
+    return Response.json({ accessCodes, total, limit, offset })
   } catch (error) {
     console.error('List access codes error:', error)
     return createErrorResponse('INTERNAL_ERROR', requestId)
