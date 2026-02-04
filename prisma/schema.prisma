@@ -88,12 +88,15 @@ model QuoteItem {
 
 model AccessCode {
   id             String    @id @default(uuid()) @db.Uuid
-  clientId       String    @map("client_id") @db.Uuid
+  clientId       String?   @map("client_id") @db.Uuid
   quoteId        String?   @map("quote_id") @db.Uuid
-  codeHash       String    @map("code_hash") @db.VarChar(255)
-  codeHint       String    @map("code_hint") @db.VarChar(4)
-  expiresAt      DateTime  @map("expires_at") @db.Timestamptz
-  maxUses        Int       @default(1) @map("max_uses")
+  code           String    @unique @db.VarChar(20) // Plain code for manual entry (e.g., "ACME2024")
+  clientSlug     String    @map("client_slug") @db.VarChar(100) // Maps to clients/ folder
+  codeHash       String?   @map("code_hash") @db.VarChar(255) // Optional hashed version
+  codeHint       String?   @map("code_hint") @db.VarChar(4)
+  isActive       Boolean   @default(true) @map("is_active")
+  expiresAt      DateTime? @map("expires_at") @db.Timestamptz
+  maxUses        Int       @default(100) @map("max_uses")
   usedCount      Int       @default(0) @map("used_count")
   failedAttempts Int       @default(0) @map("failed_attempts")
   lockedUntil    DateTime? @map("locked_until") @db.Timestamptz
@@ -101,11 +104,12 @@ model AccessCode {
   revokedBy      String?   @map("revoked_by") @db.VarChar(255)
   createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
-  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client   Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   quote    Quote?    @relation(fields: [quoteId], references: [id])
   sessions Session[]
 
-  @@index([codeHash, expiresAt], name: "idx_codes_lookup")
+  @@index([code], name: "idx_codes_lookup")
+  @@index([clientSlug], name: "idx_codes_slug")
   @@index([clientId], name: "idx_codes_client")
   @@map("access_codes")
 }

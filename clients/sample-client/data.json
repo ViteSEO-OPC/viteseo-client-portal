@@ -1,0 +1,40 @@
+{
+  "clientName": "Sample Corporation",
+  "contactName": "John Doe",
+  "email": "john@samplecorp.com",
+  "activeQuote": "quote-2024-001.pdf",
+  "quoteNumber": "Q-2024-0001",
+  "validUntil": "2024-12-31T23:59:59Z",
+  "total": "150000",
+  "currency": "PHP",
+  "items": [
+    {
+      "id": "1",
+      "name": "SEO Audit & Strategy",
+      "description": "Comprehensive website SEO audit with competitive analysis and 6-month strategy roadmap",
+      "quantity": 1,
+      "unitPrice": "50000"
+    },
+    {
+      "id": "2",
+      "name": "On-Page Optimization",
+      "description": "Technical SEO fixes, meta tags, content optimization for 50 pages",
+      "quantity": 1,
+      "unitPrice": "35000"
+    },
+    {
+      "id": "3",
+      "name": "Content Creation",
+      "description": "Monthly blog posts and landing page content (10 articles)",
+      "quantity": 10,
+      "unitPrice": "3500"
+    },
+    {
+      "id": "4",
+      "name": "Link Building Campaign",
+      "description": "Quality backlink acquisition - 20 high DA links",
+      "quantity": 1,
+      "unitPrice": "30000"
+    }
+  ]
+}

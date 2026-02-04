@@ -12,7 +12,9 @@
       "Bash(lsof:*)",
       "Bash(xargs kill:*)",
       "Bash(npm install:*)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(curl:*)",
+      "Bash(npm run db:push:*)"
     ]
   }
 }
