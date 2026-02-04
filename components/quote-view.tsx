@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { Check, X, Download, FileText, Calendar, Building, Mail, User } from 'lucide-react'
+import { Check, X, Download, Calendar, Building, Mail, User } from 'lucide-react'
 import { useAcceptQuote, useRejectQuote, useGeneratePDF, setCSRFToken } from '@/lib/query'
 
 interface QuoteItem {
@@ -94,11 +94,6 @@ export function QuoteView({ client, quote, timezone, csrfToken }: QuoteViewProps
                     {quote.quoteNumber}
                 </span>
             </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-             <FileText className="w-4 h-4" />
-             <span>Version {quote.version}</span>
-          </div>
-
           {/* Status Badge */}
           <div className="mt-2">
             {quoteStatus === 'accepted' && (

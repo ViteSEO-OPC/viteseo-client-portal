@@ -14,7 +14,8 @@
       "Bash(npm install:*)",
       "Bash(npm audit:*)",
       "Bash(curl:*)",
-      "Bash(npm run db:push:*)"
+      "Bash(npm run db:push:*)",
+      "Bash(npm run dev:*)"
     ]
   }
 }

@@ -1,7 +1,6 @@
 import 'server-only'
 import { chromium, type Browser } from 'playwright'
 import { prisma } from '@/lib/db'
-import { createHash } from 'crypto'
 
 let browserInstance: Browser | null = null
 
@@ -32,6 +31,7 @@ export async function generateQuotePDF(
   quoteId: string,
   clientId: string,
   renderToken: string,
+  baseUrl?: string,
   routePath?: string | null
 ): Promise<PDFGenerationResult> {
   const browser = await getBrowser()
@@ -43,15 +43,62 @@ export async function generateQuotePDF(
   try {
     const page = await context.newPage()
 
-    // Navigate to the dedicated PDF render page (not API route to avoid recursion)
-    // Use the quote's routePath if available, otherwise fall back to default render page
-    const baseUrl = process.env.PDF_RENDER_BASE_URL || process.env.APP_URL || 'http://localhost:3000'
-    
-    // Always use the PDF render page with token for security
-    // The render page will load the appropriate quote content based on the token
-    const renderUrl = `${baseUrl}/portal/pdf/render?token=${renderToken}`
+    const hideSelectors = [
+      '.tsqd-parent-container',
+      '.ReactQueryDevtools',
+      '[aria-label*="Devtools"]',
+      '[aria-label*="React Query"]',
+      '[data-testid*="devtools"]',
+      '#__next-build-watcher',
+      '[data-nextjs-dev-overlay]',
+      '[class*="nextjs-error"]',
+      'nextjs-portal',
+      '#nextjs__toast',
+      '[data-nextjs-toast]',
+      '[class*="nextjs-toast"]',
+      '[data-sentry-feedback]',
+      '.sentry-error-embed-wrapper',
+      '[class*="sentry"]',
+    ]
 
-    await page.goto(renderUrl, {
+    await page.addInitScript((selectors: string[]) => {
+      const selector = selectors.join(',')
+      if (!selector) return
+
+      const hideElements = () => {
+        document.querySelectorAll(selector).forEach((el) => {
+          const node = el as HTMLElement
+          node.style.setProperty('display', 'none', 'important')
+          node.style.setProperty('visibility', 'hidden', 'important')
+          node.setAttribute('data-pdf-hidden', 'true')
+        })
+      }
+
+      const startObserver = () => {
+        hideElements()
+        const observer = new MutationObserver(() => hideElements())
+        const root = document.documentElement || document.body || document
+        observer.observe(root, { childList: true, subtree: true })
+      }
+
+      if (document.documentElement) {
+        startObserver()
+      } else {
+        window.addEventListener('DOMContentLoaded', startObserver)
+      }
+    }, hideSelectors)
+
+    // Navigate to the dedicated PDF render page (not API route to avoid recursion)
+    const resolvedBaseUrl =
+      baseUrl ||
+      process.env.PDF_RENDER_BASE_URL ||
+      process.env.APP_URL ||
+      'http://localhost:3000'
+
+    // Always use the PDF render page with token for security
+    const renderUrl = `${resolvedBaseUrl}/portal/pdf/render?token=${renderToken}`
+
+    const response = await page.goto(renderUrl, {
       waitUntil: 'networkidle',
       timeout: 30000,
     })
@@ -60,6 +107,18 @@ export async function generateQuotePDF(
     await page.waitForSelector('[data-pdf-ready="true"]', { timeout: 10000 }).catch(() => {
       // Continue even if selector not found
     })
+
+    // Hide all development overlays before PDF capture
+    await page.evaluate((selectors: string[]) => {
+      const selector = selectors.join(',')
+      if (!selector) return
+      document.querySelectorAll(selector).forEach((el) => {
+        const node = el as HTMLElement
+        node.style.setProperty('display', 'none', 'important')
+        node.style.setProperty('visibility', 'hidden', 'important')
+        node.setAttribute('data-pdf-hidden', 'true')
+      })
+    }, hideSelectors)
 
     // Generate PDF
     const pdfBuffer = await page.pdf({

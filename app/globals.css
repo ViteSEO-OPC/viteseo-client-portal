@@ -61,6 +61,18 @@
   @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400;
 }
 
-.glass-panel {
-  @apply bg-zinc-900/50 backdrop-blur-xl border border-white/10 shadow-2xl;
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.mask-gradient {
+  mask-image: linear-gradient(to right, transparent, black 10px, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10px, black 90%, transparent);
 }

@@ -14,8 +14,14 @@ export default async function PdfRenderPage({ searchParams }: PdfRenderPageProps
   const { token } = await searchParams
 
   if (!token) {
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/pdf/render/page.tsx',message:'missing token',data:{hasToken:false},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'PDF4'})}).catch(()=>{});
+    // #endregion
     notFound()
   }
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/pdf/render/page.tsx',message:'token received',data:{tokenLength:token.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'PDF4'})}).catch(()=>{});
+  // #endregion
 
   // Validate token
   const tokenHash = createHash('sha256').update(token).digest('hex')
@@ -39,11 +45,17 @@ export default async function PdfRenderPage({ searchParams }: PdfRenderPageProps
   })
 
   if (!pdfToken) {
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/pdf/render/page.tsx',message:'token invalid',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'PDF4'})}).catch(()=>{});
+    // #endregion
     notFound()
   }
 
   const { quote } = pdfToken
   const client = quote.client
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/pdf/render/page.tsx',message:'token validated',data:{quoteId:quote.id,clientId:client.id,quoteNumber:quote.quoteNumber},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'PDF4'})}).catch(()=>{});
+  // #endregion
 
   // Decrypt client email
   const clientEmail = decrypt(client.email)
@@ -55,11 +67,15 @@ export default async function PdfRenderPage({ searchParams }: PdfRenderPageProps
   }))
 
   return (
-    <html>
-      <head>
-        <meta charSet="utf-8" />
-        <title>Quote {quote.quoteNumber} - Vite SEO</title>
+    <div data-pdf-ready="true">
         <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            color-scheme: light;
+          }
+          html, body {
+            background: #ffffff !important;
+            color: #1e293b !important;
+          }
           * {
             margin: 0;
             padding: 0;
@@ -74,6 +90,7 @@ export default async function PdfRenderPage({ searchParams }: PdfRenderPageProps
             padding: 40px;
           }
           .container {
+            background: #ffffff;
             max-width: 800px;
             margin: 0 auto;
           }
@@ -87,13 +104,8 @@ export default async function PdfRenderPage({ searchParams }: PdfRenderPageProps
           }
           .logo {
             font-size: 24px;
-            font-weight: bold;
+            font-weight: 700;
             color: #0f172a;
-          }
-          .logo-sub {
-            font-size: 12px;
-            color: #64748b;
-            font-weight: normal;
           }
           .quote-info {
             text-align: right;
@@ -225,97 +237,93 @@ export default async function PdfRenderPage({ searchParams }: PdfRenderPageProps
             }
           }
         ` }} />
-      </head>
-      <body data-pdf-ready="true">
-        <div className="container">
-          {/* Header */}
-          <div className="header">
-            <div>
-              <div className="logo">
-                Vite SEO
-                <span className="logo-sub">Digital Advertising OPC</span>
-              </div>
-            </div>
-            <div className="quote-info">
-              <div className="quote-number">{quote.quoteNumber}</div>
-              {quote.version > 1 && (
-                <div className="quote-version">Version {quote.version}</div>
-              )}
+      <div className="container">
+        {/* Header */}
+        <div className="header">
+          <div>
+            <div className="logo">
+              <strong>Vite SEO Digital Advertising OPC</strong>
             </div>
           </div>
-
-          {/* Client Info */}
-          <div className="section">
-            <div className="section-title">Prepared For</div>
-            <div className="client-info">
-              <p className="client-name">{client.companyName}</p>
-              <p>{client.contactName}</p>
-              <p>{clientEmail}</p>
-            </div>
-          </div>
-
-          {/* Quote Items */}
-          <div className="section">
-            <div className="section-title">Quote Details</div>
-            <table>
-              <thead>
-                <tr>
-                  <th style={{ width: '50%' }}>Item</th>
-                  <th className="right" style={{ width: '10%' }}>Qty</th>
-                  <th className="right" style={{ width: '20%' }}>Unit Price</th>
-                  <th className="right" style={{ width: '20%' }}>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {itemsWithTotals.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <div className="item-name">{item.name}</div>
-                      {item.description && (
-                        <div className="item-description">{item.description}</div>
-                      )}
-                    </td>
-                    <td className="right">{Number(item.quantity)}</td>
-                    <td className="right">{formatCurrency(item.unitPrice)}</td>
-                    <td className="right">{formatCurrency(item.lineTotal)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* Totals */}
-            <div className="totals">
-              <div className="totals-row grand-total">
-                <span className="totals-label">Total</span>
-                <span className="totals-value">{formatCurrency(quote.total)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Validity */}
-          <div className="validity">
-            <p>
-              This quote is valid until <strong>{formatDate(quote.validUntil.toISOString(), client.timezone)}</strong>
-            </p>
-          </div>
-
-          {/* Notes */}
-          {quote.notes && (
-            <div className="terms">
-              <div className="section-title">Notes</div>
-              <div className="terms-content">
-                {quote.notes}
-              </div>
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className="footer">
-            <p>Thank you for your business</p>
-            <p>Vite SEO Digital Advertising OPC</p>
+          <div className="quote-info">
+            <div className="quote-number">{quote.quoteNumber}</div>
+            {quote.version > 1 && (
+              <div className="quote-version">Version {quote.version}</div>
+            )}
           </div>
         </div>
-      </body>
-    </html>
+
+        {/* Client Info */}
+        <div className="section">
+          <div className="section-title">Prepared For</div>
+          <div className="client-info">
+            <p className="client-name">{client.companyName}</p>
+            <p>{client.contactName}</p>
+            <p>{clientEmail}</p>
+          </div>
+        </div>
+
+        {/* Quote Items */}
+        <div className="section">
+          <div className="section-title">Quote Details</div>
+          <table>
+            <thead>
+              <tr>
+                <th style={{ width: '50%' }}>Item</th>
+                <th className="right" style={{ width: '10%' }}>Qty</th>
+                <th className="right" style={{ width: '20%' }}>Unit Price</th>
+                <th className="right" style={{ width: '20%' }}>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {itemsWithTotals.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    <div className="item-name">{item.name}</div>
+                    {item.description && (
+                      <div className="item-description">{item.description}</div>
+                    )}
+                  </td>
+                  <td className="right">{Number(item.quantity)}</td>
+                  <td className="right">{formatCurrency(item.unitPrice)}</td>
+                  <td className="right">{formatCurrency(item.lineTotal)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Totals */}
+          <div className="totals">
+            <div className="totals-row grand-total">
+              <span className="totals-label">Total</span>
+              <span className="totals-value">{formatCurrency(quote.total)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Validity */}
+        <div className="validity">
+          <p>
+            This quote is valid until <strong>{formatDate(quote.validUntil.toISOString(), client.timezone)}</strong>
+          </p>
+        </div>
+
+        {/* Notes */}
+        {quote.notes && (
+          <div className="terms">
+            <div className="section-title">Notes</div>
+            <div className="terms-content">
+              {quote.notes}
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="footer">
+          <p>Thank you for your business</p>
+          <p>Vite SEO Digital Advertising OPC</p>
+        </div>
+      </div>
+    </div>
   )
 }

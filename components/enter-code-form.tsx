@@ -67,7 +67,7 @@ export function EnterCodeForm() {
             }}
             placeholder="XXX-XXX-XX"
             maxLength={8}
-            className="text-center text-3xl h-16 tracking-[0.2em] font-mono uppercase bg-black/20 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all placeholder:text-white/10"
+            className="text-center text-3xl h-16 tracking-[0.2em] font-mono uppercase bg-white/5 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all placeholder:text-white/20"
             autoComplete="off"
             autoFocus
             disabled={verifyCode.isPending}

@@ -16,6 +16,7 @@ const debugLog = (msg: string, data: object) => {
 
 // Separate TTL for internal render tokens (used by Playwright)
 const INTERNAL_RENDER_TOKEN_TTL = 30 * 1000 // 30 seconds
+const PDF_CACHE_VERSION = 'pdf-v4'
 
 export async function GET(request: NextRequest) {
   const requestId = generateRequestId()
@@ -64,9 +65,15 @@ export async function GET(request: NextRequest) {
     const { quote } = pdfToken
 
     // Check for cached PDF first - if we have a valid cache, use it and mark token used
-    if (quote.contentHash) {
-      const cachedPdf = await getCachedPDF(quote.id, quote.contentHash)
+    const pdfContentHash = quote.contentHash
+      ? createHash('sha256').update(`${quote.contentHash}|${PDF_CACHE_VERSION}`).digest('hex')
+      : null
+    if (pdfContentHash) {
+      const cachedPdf = await getCachedPDF(quote.id, pdfContentHash)
       if (cachedPdf) {
+        // #region agent log
+        debugLog('cached pdf hit', { requestId, quoteId: quote.id, size: cachedPdf.length })
+        // #endregion
         // Mark original token as used
         await prisma.pdfRenderToken.update({
           where: { id: pdfToken.id },
@@ -104,7 +111,16 @@ export async function GET(request: NextRequest) {
     })
 
     // Generate new PDF using the internal token
-    const result = await generateQuotePDF(quote.id, quote.clientId, internalToken)
+    // #region agent log
+    debugLog('generateQuotePDF start', { requestId, quoteId: quote.id })
+    // #endregion
+    const result = await generateQuotePDF(
+      quote.id,
+      quote.clientId,
+      internalToken,
+      request.nextUrl.origin,
+      quote.routePath
+    )
     // #region agent log
     debugLog('generateQuotePDF result', { requestId, success: result.success, size: result.pdfBuffer?.length ?? 0 })
     // #endregion
@@ -120,8 +136,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Cache the PDF
-    if (quote.contentHash) {
-      await cachePDF(quote.id, quote.contentHash, result.pdfBuffer)
+    if (pdfContentHash) {
+      await cachePDF(quote.id, pdfContentHash, result.pdfBuffer)
     }
 
     return new Response(result.pdfBuffer, {
@@ -133,6 +149,9 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
+    // #region agent log
+    debugLog('pdf render error', { requestId, error: error instanceof Error ? error.message : 'Unknown error' })
+    // #endregion
     console.error('PDF render error:', error)
     return createErrorResponse('PDF_GENERATION_FAILED', requestId)
   }

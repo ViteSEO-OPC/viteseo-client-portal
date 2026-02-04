@@ -104,7 +104,11 @@ export async function POST(request: NextRequest) {
       meta: { sessionId: session.sessionId },
     })
 
-    const baseUrl = process.env.APP_URL || 'http://localhost:3000'
+    const baseUrl = request.nextUrl.origin
+
+    // #region agent log
+    debugLog('pdf download url', { requestId, downloadUrl: `${baseUrl}/api/portal/pdf/render?token=${token}` })
+    // #endregion
 
     return Response.json({
       success: true,
