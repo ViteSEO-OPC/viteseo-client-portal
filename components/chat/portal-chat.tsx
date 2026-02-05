@@ -40,12 +40,18 @@ export function PortalChat({ disabled = false }: PortalChatProps) {
 
   const handleMarkAsRead = () => {
     if (isOpen) {
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/chat/portal-chat.tsx:handleMarkAsRead',message:'handleMarkAsRead called',data:{isOpen,unreadCount},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
       markAsRead.mutate()
     }
   }
 
   // Effect to mark as read when opening
   useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/chat/portal-chat.tsx:useEffect',message:'markAsRead effect',data:{isOpen,unreadCount},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
     if (isOpen && unreadCount > 0) {
       handleMarkAsRead()
     }

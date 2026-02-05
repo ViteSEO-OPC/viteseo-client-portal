@@ -1,9 +1,8 @@
 import { test, expect } from '@playwright/test'
-import { loadEnvConfig } from '@next/env'
 import { createHash, randomBytes } from 'crypto'
+import { prisma } from '../../lib/db'
+import { encrypt } from '../../lib/auth/encryption'
 
-let prisma: typeof import('../../lib/db').prisma
-let encrypt: (value: string) => string
 let seeded: {
   clientId: string
   quoteId: string
@@ -14,19 +13,7 @@ function getFutureDate(days: number): Date {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000)
 }
 
-async function initPrisma() {
-  if (!prisma) {
-    loadEnvConfig(process.cwd())
-    const dbModule = await import('../../lib/db')
-    prisma = dbModule.prisma
-    const encryptionModule = await import('../../lib/auth/encryption')
-    encrypt = encryptionModule.encrypt
-  }
-}
-
 async function seedQuoteData(uniqueSuffix: string) {
-  await initPrisma()
-
   const portalSlug = `pdf-test-${uniqueSuffix}`
   const quoteNumber = `Q-PDF-${uniqueSuffix}`
 
