@@ -90,19 +90,19 @@ describe('Quote Discovery', () => {
     })
     
     // Mock fs.readdirSync
-    vi.mocked(fs.readdirSync).mockImplementation((dirPath: fs.PathLike) => {
+    vi.mocked(fs.readdirSync).mockImplementation(((dirPath: fs.PathLike) => {
       const pathStr = dirPath.toString()
       
       if (pathStr.endsWith('/clients')) {
-        return ['sample-client', 'legacy-client', 'README.md'] as unknown as fs.Dirent[]
+        return ['sample-client', 'legacy-client', 'README.md']
       }
       
       if (pathStr.includes('sample-client/quotes')) {
-        return ['Q-2024-0001'] as unknown as fs.Dirent[]
+        return ['Q-2024-0001']
       }
       
-      return [] as unknown as fs.Dirent[]
-    })
+      return []
+    }) as typeof fs.readdirSync)
     
     // Mock fs.statSync
     vi.mocked(fs.statSync).mockImplementation((filePath: fs.PathLike) => {

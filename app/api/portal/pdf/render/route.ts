@@ -8,12 +8,6 @@ import { generateRequestId } from '@/lib/utils'
 export const maxDuration = 30
 export const dynamic = 'force-dynamic'
 
-// #region agent log
-const debugLog = (msg: string, data: object) => {
-  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api/portal/pdf/render/route.ts',message:msg,data,timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'PDF2'})}).catch(()=>{});
-}
-// #endregion
-
 // Separate TTL for internal render tokens (used by Playwright)
 const INTERNAL_RENDER_TOKEN_TTL = 30 * 1000 // 30 seconds
 const PDF_CACHE_VERSION = 'pdf-v4'
@@ -24,14 +18,8 @@ export async function GET(request: NextRequest) {
   const token = searchParams.get('token')
 
   if (!token) {
-    // #region agent log
-    debugLog('missing token', { requestId })
-    // #endregion
     return createErrorResponse('UNAUTHORIZED', requestId)
   }
-  // #region agent log
-  debugLog('render request', { requestId, tokenLength: token.length })
-  // #endregion
 
   try {
     // Validate token
@@ -56,9 +44,6 @@ export async function GET(request: NextRequest) {
     })
 
     if (!pdfToken) {
-      // #region agent log
-      debugLog('pdf token invalid', { requestId })
-      // #endregion
       return createErrorResponse('UNAUTHORIZED', requestId)
     }
 
@@ -71,16 +56,13 @@ export async function GET(request: NextRequest) {
     if (pdfContentHash) {
       const cachedPdf = await getCachedPDF(quote.id, pdfContentHash)
       if (cachedPdf) {
-        // #region agent log
-        debugLog('cached pdf hit', { requestId, quoteId: quote.id, size: cachedPdf.length })
-        // #endregion
         // Mark original token as used
         await prisma.pdfRenderToken.update({
           where: { id: pdfToken.id },
           data: { usedAt: new Date() },
         })
 
-        return new Response(cachedPdf, {
+        return new Response(new Uint8Array(cachedPdf), {
           headers: {
             'Content-Type': 'application/pdf',
             'Content-Disposition': `attachment; filename="${quote.quoteNumber}.pdf"`,
@@ -111,9 +93,6 @@ export async function GET(request: NextRequest) {
     })
 
     // Generate new PDF using the internal token
-    // #region agent log
-    debugLog('generateQuotePDF start', { requestId, quoteId: quote.id })
-    // #endregion
     const result = await generateQuotePDF(
       quote.id,
       quote.clientId,
@@ -121,9 +100,6 @@ export async function GET(request: NextRequest) {
       request.nextUrl.origin,
       quote.routePath
     )
-    // #region agent log
-    debugLog('generateQuotePDF result', { requestId, success: result.success, size: result.pdfBuffer?.length ?? 0 })
-    // #endregion
 
     // Mark internal token as used
     await prisma.pdfRenderToken.updateMany({
@@ -140,7 +116,7 @@ export async function GET(request: NextRequest) {
       await cachePDF(quote.id, pdfContentHash, result.pdfBuffer)
     }
 
-    return new Response(result.pdfBuffer, {
+    return new Response(new Uint8Array(result.pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${quote.quoteNumber}.pdf"`,
@@ -149,9 +125,6 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    // #region agent log
-    debugLog('pdf render error', { requestId, error: error instanceof Error ? error.message : 'Unknown error' })
-    // #endregion
     console.error('PDF render error:', error)
     return createErrorResponse('PDF_GENERATION_FAILED', requestId)
   }

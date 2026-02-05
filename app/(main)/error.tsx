@@ -14,9 +14,6 @@ export default function Error({
 }) {
   useEffect(() => {
     Sentry.captureException(error)
-    // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'PDF-ERROR-BOUNDARY',location:'app/error.tsx',message:'error boundary rendered',data:{pathname:typeof window !== 'undefined' ? window.location.pathname : 'unknown',errorName:error.name,digest:error.digest ?? null},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
   }, [error])
 
   return (

@@ -105,6 +105,7 @@ export async function POST(request: NextRequest) {
     // Verify client exists
     const client = await prisma.client.findUnique({
       where: { id: clientId },
+      select: { id: true, portalSlug: true },
     })
 
     if (!client) {
@@ -123,6 +124,8 @@ export async function POST(request: NextRequest) {
       data: {
         clientId,
         quoteId,
+        code: plainCode,
+        clientSlug: client.portalSlug,
         codeHash,
         codeHint,
         expiresAt: new Date(Date.now() + expiresInHours * 60 * 60 * 1000),

@@ -31,7 +31,7 @@ interface QuoteViewProps {
     items: QuoteItem[]
   }
   timezone: string
-  csrfToken?: string
+  csrfToken?: string | null
 }
 
 export function QuoteView({ client, quote, timezone, csrfToken }: QuoteViewProps) {
@@ -270,7 +270,7 @@ export function QuoteView({ client, quote, timezone, csrfToken }: QuoteViewProps
                 </div>
                 <h3 className="text-xl font-bold text-red-400">Quote Rejected</h3>
                 <p className="text-red-200/80 max-w-md">
-                You have rejected this quote. If you would like to discuss alternatives or have any questions, please don't hesitate to contact us.
+                You have rejected this quote. If you would like to discuss alternatives or have any questions, please don&apos;t hesitate to contact us.
                 </p>
             </div>
           </CardContent>

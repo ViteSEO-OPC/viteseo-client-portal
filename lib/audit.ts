@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { Prisma } from '@prisma/client'
 
 export type AuditEventType =
   | 'OTP_VERIFIED'
@@ -49,7 +50,7 @@ export async function createAuditLog(params: AuditLogParams): Promise<void> {
         resourceId: params.resourceId,
         ipAddress: params.ipAddress,
         userAgent: params.userAgent,
-        meta: params.meta,
+        meta: params.meta as Prisma.InputJsonValue | undefined,
       },
     })
   } catch (error) {

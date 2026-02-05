@@ -68,7 +68,8 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
     })),
     accessCodes: quote.accessCodes.map((code) => ({
       ...code,
-      expiresAt: code.expiresAt.toISOString(),
+      codeHint: code.codeHint ?? '',
+      expiresAt: code.expiresAt?.toISOString() ?? '',
       createdAt: code.createdAt.toISOString(),
       revokedAt: code.revokedAt?.toISOString() ?? null,
     })),

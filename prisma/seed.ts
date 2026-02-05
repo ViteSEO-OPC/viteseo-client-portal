@@ -70,6 +70,8 @@ async function main() {
     data: {
       clientId: client.id,
       quoteId: quote.id,
+      code: plainCode,
+      clientSlug: client.portalSlug,
       codeHash: await hashOTP(plainCode),
       codeHint: getCodeHint(plainCode),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days

@@ -53,7 +53,7 @@ export async function DELETE(
       eventType: 'ACCESS_CODE_REVOKED',
       actorType: 'admin',
       actorId: userId,
-      action: `Revoked access code for ${accessCode.client.companyName}`,
+      action: `Revoked access code for ${accessCode.client?.companyName ?? 'unknown client'}`,
       resourceType: 'access_code',
       resourceId: id,
       ipAddress: ip,

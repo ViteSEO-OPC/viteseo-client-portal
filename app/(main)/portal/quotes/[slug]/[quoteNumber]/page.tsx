@@ -16,15 +16,9 @@ export const dynamic = 'force-dynamic'
 
 export default async function QuotePage({ params }: QuotePageProps) {
   const { slug, quoteNumber } = await params
-  // #region agent log
-  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/quotes/[slug]/[quoteNumber]/page.tsx',message:'QuotePage called',data:{slug,quoteNumber},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
 
   // Validate session - return 404 for unauthenticated requests (security spec)
   const session = await getSession()
-  // #region agent log
-  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/quotes/[slug]/[quoteNumber]/page.tsx',message:'session check',data:{hasSession:!!session,clientId:session?.clientId},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
   if (!session) {
     notFound()
   }
@@ -36,9 +30,6 @@ export default async function QuotePage({ params }: QuotePageProps) {
       portalSlug: slug,
     },
   })
-  // #region agent log
-  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/quotes/[slug]/[quoteNumber]/page.tsx',message:'client lookup',data:{found:!!client,slug,clientId:session.clientId},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
 
   // If no matching client, return 404 (not 401/403 to avoid info leakage)
   if (!client) {
@@ -58,14 +49,8 @@ export default async function QuotePage({ params }: QuotePageProps) {
       },
     },
   })
-  // #region agent log
-  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/quotes/[slug]/[quoteNumber]/page.tsx',message:'quote lookup',data:{found:!!quote,quoteNumber:quote?.quoteNumber,status:quote?.status},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
 
   if (!quote) {
-    // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/quotes/[slug]/[quoteNumber]/page.tsx',message:'quote not found - calling notFound()',data:{slug,quoteNumber,clientId:client.id},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     notFound()
   }
 
@@ -112,9 +97,6 @@ export default async function QuotePage({ params }: QuotePageProps) {
 
   // Read CSRF token for the page (set during verify-code route)
   const csrfToken = await getCSRFToken()
-  // #region agent log
-  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/quotes/[slug]/[quoteNumber]/page.tsx',message:'csrf token read',data:{hasToken:!!csrfToken},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
 
   // Decrypt client email for display
   const clientEmail = decrypt(client.email)

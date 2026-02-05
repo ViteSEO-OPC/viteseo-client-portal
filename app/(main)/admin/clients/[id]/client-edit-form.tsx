@@ -23,14 +23,14 @@ interface ClientData {
     id: string
     quoteNumber: string
     status: string
-    total: unknown
+    total: { toString(): string } | number | string
     validUntil: Date
     createdAt: Date
   }>
   accessCodes: Array<{
     id: string
-    codeHint: string
-    expiresAt: Date
+    codeHint: string | null
+    expiresAt: Date | null
     usedCount: number
     maxUses: number
     revokedAt: Date | null
@@ -320,14 +320,14 @@ export function ClientEditForm({ client }: ClientEditFormProps) {
                 {client.accessCodes.map((code) => (
                   <tr key={code.id} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
                     <td className="py-2">
-                      <code className="bg-muted px-2 py-1 rounded text-sm text-foreground">****{code.codeHint}</code>
+                      <code className="bg-muted px-2 py-1 rounded text-sm text-foreground">****{code.codeHint ?? '****'}</code>
                     </td>
                     <td className="py-2">
                       {code.revokedAt ? (
                         <span className="px-2 py-1 text-xs font-medium rounded bg-red-500/15 text-red-500">
                           Revoked
                         </span>
-                      ) : code.expiresAt < new Date() ? (
+                      ) : code.expiresAt && code.expiresAt < new Date() ? (
                         <span className="px-2 py-1 text-xs font-medium rounded bg-muted text-muted-foreground">
                           Expired
                         </span>
@@ -341,7 +341,7 @@ export function ClientEditForm({ client }: ClientEditFormProps) {
                       {code.usedCount} / {code.maxUses}
                     </td>
                     <td className="py-2 text-right text-sm text-muted-foreground">
-                      {formatDate(code.expiresAt.toISOString(), client.timezone)}
+                      {code.expiresAt ? formatDate(code.expiresAt.toISOString(), client.timezone) : '-'}
                     </td>
                   </tr>
                 ))}

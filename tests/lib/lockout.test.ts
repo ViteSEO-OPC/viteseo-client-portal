@@ -58,19 +58,23 @@ describe('Failed Attempt Tracking', () => {
 })
 
 describe('Lockout State', () => {
+  // Helper function to check if locked
+  function isLocked(lockedUntil: Date | null, now: Date): boolean {
+    return lockedUntil !== null && lockedUntil > now
+  }
+
   it('should determine if locked correctly', () => {
     const now = new Date()
     
     // Not locked (no lockout set)
-    let lockedUntil: Date | null = null
-    expect(lockedUntil === null || lockedUntil <= now).toBe(true)
+    expect(isLocked(null, now)).toBe(false)
     
     // Locked (future lockout)
-    lockedUntil = new Date(now.getTime() + 10 * 60 * 1000) // 10 minutes in future
-    expect(lockedUntil > now).toBe(true)
+    const futureDate = new Date(now.getTime() + 10 * 60 * 1000) // 10 minutes in future
+    expect(isLocked(futureDate, now)).toBe(true)
     
     // Expired lockout (past lockout)
-    lockedUntil = new Date(now.getTime() - 10 * 60 * 1000) // 10 minutes in past
-    expect(lockedUntil <= now).toBe(true)
+    const pastDate = new Date(now.getTime() - 10 * 60 * 1000) // 10 minutes in past
+    expect(isLocked(pastDate, now)).toBe(false)
   })
 })

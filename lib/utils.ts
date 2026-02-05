@@ -13,8 +13,8 @@ export function generateQuoteNumber(): string {
   return `Q-${year}-${random}`
 }
 
-export function formatCurrency(amount: number | string, currency = 'PHP'): string {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount
+export function formatCurrency(amount: number | string | { toString(): string }, currency = 'PHP'): string {
+  const num = typeof amount === 'number' ? amount : parseFloat(amount.toString())
   return new Intl.NumberFormat('en-PH', {
     style: 'currency',
     currency,

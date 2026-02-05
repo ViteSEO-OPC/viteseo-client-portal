@@ -14,14 +14,8 @@ export default async function PdfRenderPage({ searchParams }: PdfRenderPageProps
   const { token } = await searchParams
 
   if (!token) {
-    // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/pdf/render/page.tsx',message:'missing token',data:{hasToken:false},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'PDF4'})}).catch(()=>{});
-    // #endregion
     notFound()
   }
-  // #region agent log
-  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/pdf/render/page.tsx',message:'token received',data:{tokenLength:token.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'PDF4'})}).catch(()=>{});
-  // #endregion
 
   // Validate token
   const tokenHash = createHash('sha256').update(token).digest('hex')
@@ -45,17 +39,11 @@ export default async function PdfRenderPage({ searchParams }: PdfRenderPageProps
   })
 
   if (!pdfToken) {
-    // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/pdf/render/page.tsx',message:'token invalid',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'PDF4'})}).catch(()=>{});
-    // #endregion
     notFound()
   }
 
   const { quote } = pdfToken
   const client = quote.client
-  // #region agent log
-  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'portal/pdf/render/page.tsx',message:'token validated',data:{quoteId:quote.id,clientId:client.id,quoteNumber:quote.quoteNumber},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'PDF4'})}).catch(()=>{});
-  // #endregion
 
   // Decrypt client email
   const clientEmail = decrypt(client.email)
