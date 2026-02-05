@@ -24,3 +24,17 @@ export {
   useGeneratePDF,
   useVerifyCode,
 } from './portal'
+
+// Message hooks
+export {
+  usePortalMessages,
+  useSendPortalMessage,
+  usePortalUnreadCount,
+  useMarkPortalMessagesRead,
+  useAdminMessages,
+  useSendAdminMessage,
+  useAdminUnreadCounts,
+  useMarkAdminMessagesRead,
+} from './messages'
+
+export type { Message } from './messages'
