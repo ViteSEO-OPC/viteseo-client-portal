@@ -18,13 +18,22 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const { quoteId } = await params
 
   try {
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/messages/[quoteId]/read/route.ts:entry',message:'read route entry',data:{quoteId,hasIp:!!ip},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
     const { userId } = await auth()
     if (!userId) {
       return createErrorResponse('UNAUTHORIZED', requestId)
     }
 
     const { success } = await adminRateLimit.limit(ip)
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/messages/[quoteId]/read/route.ts:rateLimit',message:'rate limit result',data:{quoteId,success},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
     if (!success) {
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/messages/[quoteId]/read/route.ts:rateLimited',message:'rate limited',data:{quoteId},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
       return createErrorResponse('RATE_LIMITED', requestId)
     }
 
@@ -50,6 +59,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         readAt: new Date(),
       },
     })
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/messages/[quoteId]/read/route.ts:updateMany',message:'updateMany completed',data:{quoteId,count:result.count},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
 
     if (result.count > 0) {
       await createAuditLog({
@@ -70,6 +82,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       markedAsRead: result.count,
     })
   } catch (error) {
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/messages/[quoteId]/read/route.ts:catch',message:'read route error',data:{quoteId,hasError:true},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
     console.error('Mark messages read error:', error)
     return createErrorResponse('INTERNAL_ERROR', requestId)
   }

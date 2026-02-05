@@ -1,6 +1,0 @@
-{"location":"lib/audit.ts:createAuditLog","message":"createAuditLog called","data":{"eventType":"OTP_VERIFIED","actorType":"client","hasResourceId":true},"timestamp":1770296131868,"sessionId":"debug-session","hypothesisId":"A"}
-{"location":"lib/audit.ts:createAuditLog","message":"createAuditLog called","data":{"eventType":"SESSION_CREATED","actorType":"client","hasResourceId":true},"timestamp":1770296132310,"sessionId":"debug-session","hypothesisId":"A"}
-{"location":"components/chat/portal-chat.tsx:useEffect","message":"markAsRead effect","data":{"isOpen":false,"unreadCount":0},"timestamp":1770296140005,"sessionId":"debug-session","hypothesisId":"D"}
-{"location":"components/chat/portal-chat.tsx:useEffect","message":"markAsRead effect","data":{"isOpen":false,"unreadCount":0},"timestamp":1770296140005,"sessionId":"debug-session","hypothesisId":"D"}
-{"location":"components/chat/portal-chat.tsx:useEffect","message":"markAsRead effect","data":{"isOpen":false,"unreadCount":0},"timestamp":1770296142039,"sessionId":"debug-session","hypothesisId":"D"}
-{"location":"components/chat/portal-chat.tsx:useEffect","message":"markAsRead effect","data":{"isOpen":false,"unreadCount":0},"timestamp":1770296142229,"sessionId":"debug-session","hypothesisId":"D"}
