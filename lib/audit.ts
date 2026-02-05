@@ -43,9 +43,6 @@ interface AuditLogParams {
 
 export async function createAuditLog(params: AuditLogParams): Promise<void> {
   try {
-    // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/audit.ts:createAuditLog',message:'createAuditLog called',data:{eventType:params.eventType,actorType:params.actorType,hasResourceId:!!params.resourceId},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     await prisma.auditLog.create({
       data: {
         eventType: params.eventType,

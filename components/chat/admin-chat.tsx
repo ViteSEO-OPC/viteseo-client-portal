@@ -19,18 +19,12 @@ export function AdminChat({ quoteId }: AdminChatProps) {
   const markAsRead = useMarkAdminMessagesRead(quoteId)
 
   const unreadCount = unreadData?.counts?.[quoteId] ?? 0
-  // #region agent log
-  fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/chat/admin-chat.tsx:render',message:'AdminChat render',data:{quoteId,unreadCount,isLoading,hasMessages:!!messagesData?.messages?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-  // #endregion
 
   const handleSend = (content: string) => {
     sendMessage.mutate({ content })
   }
 
   const handleMarkAsRead = () => {
-    // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/chat/admin-chat.tsx:handleMarkAsRead',message:'handleMarkAsRead invoked',data:{quoteId,unreadCount},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     markAsRead.mutate()
   }
 

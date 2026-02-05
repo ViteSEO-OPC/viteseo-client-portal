@@ -30,13 +30,7 @@ export function MessagesInbox({ conversations }: MessagesInboxProps) {
 
   // Auto-select first conversation on desktop only
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/(main)/admin/messages/messages-inbox.tsx:autoSelect',message:'Auto-select effect',data:{selectedQuoteId,conversationsCount:conversations.length,innerWidth:typeof window !== "undefined" ? window.innerWidth : null},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
     if (window.innerWidth >= 1024 && !selectedQuoteId && conversations.length > 0) {
-      // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/(main)/admin/messages/messages-inbox.tsx:autoSelect',message:'Auto-select setting selectedQuoteId',data:{nextQuoteId:conversations[0]?.quoteId ?? null},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
-      // #endregion
       setSelectedQuoteId(conversations[0].quoteId)
     }
   }, [conversations, selectedQuoteId])

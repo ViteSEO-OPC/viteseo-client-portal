@@ -71,9 +71,6 @@ export async function POST(request: NextRequest) {
     })
 
     // Log admin preview action
-    // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/preview/route.ts:beforeAudit',message:'About to create audit log',data:{quoteId:quote.id,clientSlug,hasUserId:!!userId},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
     await createAuditLog({
       eventType: 'ADMIN_PREVIEW',
       actorType: 'admin',
@@ -85,9 +82,6 @@ export async function POST(request: NextRequest) {
       userAgent,
       meta: { clientSlug, quoteNumber: quote.quoteNumber },
     })
-    // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/preview/route.ts:afterAudit',message:'Audit log created',data:{quoteId:quote.id,clientSlug},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
 
     const baseUrl = request.nextUrl.origin
     const previewUrl = `${baseUrl}/portal/${clientSlug}?preview=${token}`
@@ -98,9 +92,6 @@ export async function POST(request: NextRequest) {
       expiresIn: PREVIEW_TOKEN_TTL / 1000,
     })
   } catch (error) {
-    // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/preview/route.ts:catch',message:'Preview route error',data:{hasError:true},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
     console.error('Preview token generation error:', error)
     return createErrorResponse('INTERNAL_ERROR', requestId)
   }
