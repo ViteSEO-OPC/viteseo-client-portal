@@ -7,6 +7,7 @@ import { ChatInput } from './chat-input'
 import { ChatBadge } from './chat-badge'
 import { MessageCircle } from 'lucide-react'
 import type { Message } from '@/lib/query/hooks'
+import { cn } from '@/lib/utils'
 
 interface ChatContainerProps {
   messages: Message[]
@@ -19,6 +20,8 @@ interface ChatContainerProps {
   disabled?: boolean
   title?: string
   showReadStatus?: boolean
+  hideHeader?: boolean
+  className?: string
 }
 
 export function ChatContainer({
@@ -32,6 +35,8 @@ export function ChatContainer({
   disabled = false,
   title = 'Messages',
   showReadStatus = false,
+  hideHeader = false,
+  className,
 }: ChatContainerProps) {
   // Mark messages as read when chat is opened/visible
   useEffect(() => {
@@ -41,14 +46,16 @@ export function ChatContainer({
   }, [onMarkAsRead, unreadCount])
 
   return (
-    <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-sm flex flex-col h-full">
-      <CardHeader className="border-b border-white/10 py-4 shrink-0">
-        <CardTitle className="text-lg font-heading text-white flex items-center gap-2">
-          <MessageCircle className="w-4 h-4 text-primary" />
-          {title}
-          {unreadCount > 0 && <ChatBadge count={unreadCount} />}
-        </CardTitle>
-      </CardHeader>
+    <Card className={cn("bg-zinc-900/50 border-white/10 backdrop-blur-sm flex flex-col h-full", className)}>
+      {!hideHeader && (
+        <CardHeader className="border-b border-white/10 py-4 shrink-0">
+          <CardTitle className="text-lg font-heading text-white flex items-center gap-2">
+            <MessageCircle className="w-4 h-4 text-primary" />
+            {title}
+            {unreadCount > 0 && <ChatBadge count={unreadCount} />}
+          </CardTitle>
+        </CardHeader>
+      )}
       <CardContent className="p-0 flex-1 flex flex-col min-h-0">
         <ChatMessages
           messages={messages}
