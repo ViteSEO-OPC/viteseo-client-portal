@@ -1,4 +1,4 @@
-import { test as base, expect } from '@playwright/test'
+import { test as base, expect, type Page } from '@playwright/test'
 
 /**
  * Admin E2E Test Fixtures
@@ -27,7 +27,7 @@ const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || ''
 const ADMIN_STORAGE_STATE = 'tests/e2e/.auth/admin.json'
 
 // Extended test with admin authentication fixture
-export const test = base.extend<{ adminPage: typeof base }>({
+export const test = base.extend<{ adminPage: Page }>({
   // This fixture provides an authenticated admin page
   adminPage: async ({ browser }, use) => {
     // Create a new context with the saved auth state
@@ -36,14 +36,14 @@ export const test = base.extend<{ adminPage: typeof base }>({
         storageState: ADMIN_STORAGE_STATE,
       })
       const page = await context.newPage()
-      await use(page as unknown as typeof base)
+      await use(page)
       await context.close()
     } catch {
       // If storage state doesn't exist, create a new context without it
       // Tests will need to authenticate manually
       const context = await browser.newContext()
       const page = await context.newPage()
-      await use(page as unknown as typeof base)
+      await use(page)
       await context.close()
     }
   },
@@ -55,7 +55,7 @@ export { expect }
  * Helper to perform Clerk sign-in
  * Use this in a setup file to create the auth storage state
  */
-export async function clerkSignIn(page: Awaited<ReturnType<typeof base['page']>>, email: string, password: string) {
+export async function clerkSignIn(page: Page, email: string, password: string) {
   await page.goto('/sign-in')
   await page.waitForLoadState('networkidle')
   

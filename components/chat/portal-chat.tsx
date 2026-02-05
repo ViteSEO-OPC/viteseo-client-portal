@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { ChatContainer } from './chat-container'
 import { Button } from '@/components/ui/button'
 import { MessageCircle, X, ChevronDown } from 'lucide-react'
@@ -34,18 +34,21 @@ export function PortalChat({ disabled = false }: PortalChatProps) {
     }
   }, [unreadCount, isOpen])
 
-  const handleSend = (content: string) => {
-    sendMessage.mutate({ content })
-  }
+  const handleSend = useCallback(
+    (content: string) => {
+      sendMessage.mutate({ content })
+    },
+    [sendMessage]
+  )
 
-  const handleMarkAsRead = () => {
+  const handleMarkAsRead = useCallback(() => {
     if (isOpen) {
       // #region agent log
       fetch('http://127.0.0.1:7244/ingest/bc5a1621-7775-44b9-baa7-befaa2e65fda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/chat/portal-chat.tsx:handleMarkAsRead',message:'handleMarkAsRead called',data:{isOpen,unreadCount},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
       // #endregion
       markAsRead.mutate()
     }
-  }
+  }, [isOpen, markAsRead, unreadCount])
 
   // Effect to mark as read when opening
   useEffect(() => {
@@ -55,7 +58,7 @@ export function PortalChat({ disabled = false }: PortalChatProps) {
     if (isOpen && unreadCount > 0) {
       handleMarkAsRead()
     }
-  }, [isOpen, unreadCount])
+  }, [handleMarkAsRead, isOpen, unreadCount])
 
   if (disabled) return null
 
