@@ -1,2 +1,0 @@
-{"location":"components/chat/chat-container.tsx:useEffect","message":"ChatContainer effect triggered","data":{"currentUserType":"client","unreadCount":0,"hasOnMarkAsRead":true},"timestamp":1770292745156,"sessionId":"debug-session","hypothesisId":"A"}
-{"location":"components/chat/chat-container.tsx:useEffect","message":"ChatContainer effect triggered","data":{"currentUserType":"client","unreadCount":0,"hasOnMarkAsRead":true},"timestamp":1770292745162,"sessionId":"debug-session","hypothesisId":"A"}
