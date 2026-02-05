@@ -44,7 +44,7 @@ const nextConfig = {
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: https: blob:",
             [
-              "connect-src 'self' https://clerk.com https://*.clerk.accounts.dev https://*.sentry.io wss:",
+              "connect-src 'self' https://clerk.com https://*.clerk.accounts.dev https://clerk-telemetry.com https://*.sentry.io wss:",
               ...(isDev ? ['http://127.0.0.1:7244'] : []),
             ].join(' '),
             "frame-src 'self' https://clerk.com https://*.clerk.accounts.dev",
