@@ -84,6 +84,7 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
   const [quoteStatus, setQuoteStatus] = useState(quote.status)
   const [generatedCode, setGeneratedCode] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [previewLoading, setPreviewLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -139,6 +140,34 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
         },
       }
     )
+  }
+
+  const handlePreviewPortal = async () => {
+    setPreviewLoading(true)
+    try {
+      const response = await fetch('/api/admin/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quoteId: quote.id,
+          clientSlug: quote.client.portalSlug,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate preview token')
+      }
+
+      const data = await response.json()
+      if (data.previewUrl) {
+        window.open(data.previewUrl, '_blank')
+      }
+    } catch (error) {
+      console.error('Preview error:', error)
+      alert('Failed to generate preview. Please try again.')
+    } finally {
+      setPreviewLoading(false)
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -250,9 +279,13 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
                 {generateAccessCode.isPending ? 'Generating...' : 'Generate Access Code'}
               </Button>
             )}
-            <Link href={`/portal/${quote.client.portalSlug}`} target="_blank">
-              <Button variant="outline">Preview Portal</Button>
-            </Link>
+            <Button
+              onClick={handlePreviewPortal}
+              disabled={previewLoading}
+              variant="outline"
+            >
+              {previewLoading ? 'Loading...' : 'Preview Portal'}
+            </Button>
           </div>
         </CardContent>
       </Card>

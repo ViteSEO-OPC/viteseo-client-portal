@@ -25,6 +25,10 @@ npm run db:migrate:deploy # Deploy migrations (production)
 npm run db:studio        # Open Prisma Studio
 npm run db:seed          # Seed demo data
 
+# Quote sync (file system → database)
+npm run sync:quotes      # Sync clients/ directory to database
+npm run sync:quotes -- --dry-run  # Preview changes without applying
+
 # Testing
 npm run test             # Run unit tests
 npm run test:coverage    # Run tests with coverage
@@ -60,9 +64,22 @@ Seven layers: Edge (CloudFlare WAF) → Transport (HTTPS/TLS 1.3) → Applicatio
 - PDF tokens are short-lived (60s TTL, single-use)
 
 ### Data Model
-Core entities: `clients`, `quotes`, `quote_items`, `access_codes`, `sessions`, `pdf_render_tokens`, `audit_logs`, `pdf_cache`
+Core entities: `clients`, `quotes`, `quote_items`, `access_codes`, `sessions`, `pdf_render_tokens`, `admin_preview_tokens`, `audit_logs`, `pdf_cache`
 
 Quote states: DRAFT → SENT → VIEWED → ACCEPTED/REJECTED/EXPIRED/SUPERSEDED
+
+### File-System as Source of Truth
+Quotes are defined in the `clients/` directory and synced to the database:
+```
+clients/
+├── [portal-slug]/
+│   ├── client.manifest.json       # Client metadata
+│   └── quotes/
+│       └── [quote-number]/
+│           ├── quote.manifest.json  # Quote data (items, total, etc.)
+│           └── page.tsx             # Optional: Custom quote page
+```
+Run `npm run sync:quotes` to sync changes. Immutable quotes (SENT or later) create new versions instead of updating.
 
 ### API Endpoints
 | Endpoint | Auth | Purpose |
@@ -85,18 +102,23 @@ Quote states: DRAFT → SENT → VIEWED → ACCEPTED/REJECTED/EXPIRED/SUPERSEDED
 ## File Structure
 
 ```
-├── app/                      # Next.js App Router
-│   ├── api/                  # API routes
-│   ├── admin/                # Admin pages (Clerk protected)
-│   ├── enter-code/           # Public OTP entry
-│   └── portal/[slug]/        # Client portal (session protected)
+├── app/
+│   ├── (main)/               # Main route group with standard layout
+│   │   ├── admin/            # Admin pages (Clerk protected)
+│   │   ├── enter-code/       # Public OTP entry
+│   │   └── portal/[slug]/    # Client portal (session protected)
+│   ├── (pdf)/                # PDF render route group (minimal layout)
+│   └── api/                  # API routes
+├── clients/                  # Source of truth for quotes (synced to DB)
 ├── components/               # React components
 │   └── ui/                   # shadcn/ui components
-├── lib/                      # Utilities
+├── lib/
 │   ├── auth/                 # OTP, session, encryption
 │   ├── pdf/                  # Playwright PDF generation
-│   └── ...                   # db, redis, audit, errors, validations
+│   ├── query/                # React Query hooks and API client
+│   └── quotes/               # Quote discovery and sync
 ├── prisma/                   # Database schema and migrations
+├── scripts/                  # Utility scripts (sync-quotes, create-access-code)
 └── tests/                    # Unit and E2E tests
 ```
 

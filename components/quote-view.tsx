@@ -32,9 +32,10 @@ interface QuoteViewProps {
   }
   timezone: string
   csrfToken?: string | null
+  isPreviewMode?: boolean
 }
 
-export function QuoteView({ client, quote, timezone, csrfToken }: QuoteViewProps) {
+export function QuoteView({ client, quote, timezone, csrfToken, isPreviewMode = false }: QuoteViewProps) {
   const [quoteStatus, setQuoteStatus] = useState(quote.status)
 
   // Store CSRF token on mount
@@ -73,7 +74,7 @@ export function QuoteView({ client, quote, timezone, csrfToken }: QuoteViewProps
     })
   }
 
-  const canTakeAction = quoteStatus === 'viewed' || quoteStatus === 'sent'
+  const canTakeAction = !isPreviewMode && (quoteStatus === 'viewed' || quoteStatus === 'sent')
   const isExpired = new Date(quote.validUntil) < new Date()
 
   // Combine errors
@@ -118,15 +119,17 @@ export function QuoteView({ client, quote, timezone, csrfToken }: QuoteViewProps
             )}
           </div>
         </div>
-        <Button
-          onClick={handleDownloadPDF}
-          disabled={generatePDF.isPending}
-          variant="outline"
-          className="border-white/10 hover:bg-white/5 text-foreground"
-        >
-            <Download className="w-4 h-4 mr-2" />
-          {generatePDF.isPending ? 'Generating PDF...' : 'Download PDF'}
-        </Button>
+        {!isPreviewMode && (
+          <Button
+            onClick={handleDownloadPDF}
+            disabled={generatePDF.isPending}
+            variant="outline"
+            className="border-white/10 hover:bg-white/5 text-foreground"
+          >
+              <Download className="w-4 h-4 mr-2" />
+            {generatePDF.isPending ? 'Generating PDF...' : 'Download PDF'}
+          </Button>
+        )}
       </div>
 
       {error && (
