@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { SignedIn, SignedOut, RedirectToSignIn, UserButton } from '@clerk/nextjs'
-import { LayoutDashboard, Users, FileText, Key, History, Activity } from 'lucide-react'
+import { LayoutDashboard, Users, FileText, Key, History, Activity, MessageCircle } from 'lucide-react'
 
 export default function AdminLayout({
   children,
@@ -43,6 +43,13 @@ export default function AdminLayout({
                 >
                   <FileText className="w-4 h-4" />
                   <span className="hidden sm:inline">Quotes</span>
+                </Link>
+                <Link
+                  href="/admin/messages"
+                  className="flex flex-none items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full text-muted-foreground hover:text-white hover:bg-white/5 transition-all whitespace-nowrap"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span className="hidden sm:inline">Messages</span>
                 </Link>
                 <Link
                   href="/admin/access-codes"

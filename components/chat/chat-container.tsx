@@ -41,7 +41,7 @@ export function ChatContainer({
   }, [onMarkAsRead, unreadCount])
 
   return (
-    <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-sm flex flex-col h-[500px]">
+    <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-sm flex flex-col h-full">
       <CardHeader className="border-b border-white/10 py-4 shrink-0">
         <CardTitle className="text-lg font-heading text-white flex items-center gap-2">
           <MessageCircle className="w-4 h-4 text-primary" />
