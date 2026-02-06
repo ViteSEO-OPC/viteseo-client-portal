@@ -36,11 +36,11 @@ export async function POST(request: NextRequest) {
       return createErrorResponse('NOT_FOUND', requestId)
     }
 
-    // Get latest viewable quote (including accepted for PDF download)
+    // Get latest viewable quote (including accepted/rejected for PDF download)
     const quote = await prisma.quote.findFirst({
       where: {
         clientId: session.clientId,
-        status: { in: ['sent', 'viewed', 'accepted'] },
+        status: { in: ['sent', 'viewed', 'accepted', 'rejected'] },
       },
       orderBy: { createdAt: 'desc' },
     })
