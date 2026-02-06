@@ -39,9 +39,9 @@ const nextConfig = {
           key: 'Content-Security-Policy',
           value: [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.com https://*.clerk.accounts.dev https://embed.tawk.to https://*.tawk.to",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.com https://*.clerk.accounts.dev https://embed.tawk.to https://*.tawk.to https://cdn.jsdelivr.net",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://embed.tawk.to https://*.tawk.to",
-            "font-src 'self' https://fonts.gstatic.com",
+            "font-src 'self' https://fonts.gstatic.com https://embed.tawk.to https://*.tawk.to https://cdn.jsdelivr.net",
             "img-src 'self' data: https: blob:",
             [
               "connect-src 'self' https://clerk.com https://*.clerk.accounts.dev https://clerk-telemetry.com https://*.sentry.io https://*.tawk.to wss: wss://*.tawk.to",
