@@ -23,8 +23,6 @@ export type AuditEventType =
   | 'RATE_LIMIT_HIT'
   | 'CODE_VERIFIED'
   | 'CODE_INVALID'
-  | 'MESSAGE_SENT'
-  | 'MESSAGES_READ'
   | 'ADMIN_PREVIEW'
 
 export type ActorType = 'client' | 'admin' | 'system' | 'anonymous'

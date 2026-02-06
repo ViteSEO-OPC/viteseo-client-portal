@@ -16,7 +16,8 @@
       "Bash(curl:*)",
       "Bash(npm run db:push:*)",
       "Bash(npm run dev:*)",
-      "Bash(npm outdated:*)"
+      "Bash(npm outdated:*)",
+      "Bash(npm run db:generate:*)"
     ]
   }
 }

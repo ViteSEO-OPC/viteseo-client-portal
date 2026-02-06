@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { Check, X, Download, Calendar, Building, Mail, User } from 'lucide-react'
 import { useAcceptQuote, useRejectQuote, useGeneratePDF, setCSRFToken } from '@/lib/query'
-import { PortalChat } from '@/components/chat'
 
 interface QuoteItem {
   id: string
@@ -279,11 +278,6 @@ export function QuoteView({ client, quote, timezone, csrfToken, isPreviewMode = 
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Chat Section */}
-      {!isPreviewMode && (
-        <PortalChat disabled={false} />
       )}
 
       {/* Footer */}

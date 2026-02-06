@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label'
 import { Timeline } from '@/components/ui/timeline'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useUpdateQuote, useSendQuote, useGenerateAccessCode } from '@/lib/query/hooks'
-import { AdminChat } from '@/components/chat'
 
 interface QuoteItem {
   id: string
@@ -441,9 +440,6 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
           )}
         </CardContent>
       </Card>
-
-      {/* Client Messages */}
-      <AdminChat quoteId={quote.id} />
 
       {/* Activity Timeline */}
       <Card>

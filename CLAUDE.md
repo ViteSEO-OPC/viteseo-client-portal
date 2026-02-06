@@ -161,6 +161,10 @@ Required for production:
 - `ENCRYPTION_KEY` - PII field encryption (32+ chars)
 - `SENTRY_DSN` - Error monitoring
 
+Optional:
+- `NEXT_PUBLIC_TAWK_PROPERTY_ID` - Tawk.to property ID for live chat
+- `NEXT_PUBLIC_TAWK_WIDGET_ID` - Tawk.to widget ID for live chat
+
 ## Testing
 
 ```bash
@@ -185,3 +189,10 @@ npx playwright test --headed
 4. Set environment variables in Vercel
 5. Deploy: `vercel --prod`
 6. Run migrations: `npm run db:migrate:deploy`
+
+## Coding Style
+
+- TypeScript + React (Next.js), 2-space indentation, single quotes
+- Components in `PascalCase.tsx`, utilities in `camelCase.ts`
+- Tailwind CSS for styling
+- Client slugs must match the `clients/<client-slug>/` folder and the database `access_codes.client_slug` value

@@ -25,10 +25,6 @@ enum QuoteStatus {
   superseded
 }
 
-enum SenderType {
-  client
-  admin
-}
 
 model Client {
   id           String       @id @default(uuid()) @db.Uuid
@@ -70,7 +66,6 @@ model Quote {
   items         QuoteItem[]
   pdfTokens     PdfRenderToken[]
   accessCodes   AccessCode[]
-  messages      Message[]
 
   @@index([clientId, status], name: "idx_quotes_client")
   @@index([createdAt], name: "idx_quotes_created")
@@ -205,19 +200,3 @@ model AdminPreviewToken {
   @@map("admin_preview_tokens")
 }
 
-model Message {
-  id         String     @id @default(uuid()) @db.Uuid
-  quoteId    String     @map("quote_id") @db.Uuid
-  senderType SenderType @map("sender_type")
-  senderId   String     @map("sender_id") @db.VarChar(255)
-  content    String     @db.Text // Encrypted at application level
-  isRead     Boolean    @default(false) @map("is_read")
-  readAt     DateTime?  @map("read_at") @db.Timestamptz
-  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz
-
-  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
-
-  @@index([quoteId, createdAt], name: "idx_messages_quote")
-  @@index([quoteId, senderType, isRead], name: "idx_messages_unread")
-  @@map("messages")
-}

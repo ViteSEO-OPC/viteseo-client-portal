@@ -59,15 +59,6 @@ export const queryKeys = {
     all: ['auth'] as const,
     session: () => [...queryKeys.auth.all, 'session'] as const,
   },
-
-  // Message keys
-  messages: {
-    all: ['messages'] as const,
-    lists: () => [...queryKeys.messages.all, 'list'] as const,
-    list: (quoteId: string) => [...queryKeys.messages.lists(), quoteId] as const,
-    portalUnreadCount: () => [...queryKeys.messages.all, 'portal-unread-count'] as const,
-    adminUnreadCounts: () => [...queryKeys.messages.all, 'admin-unread-counts'] as const,
-  },
 } as const
 
 // Type helpers for query keys

@@ -5,6 +5,7 @@ import { getSession } from '@/lib/auth/session'
 import { getCSRFToken } from '@/lib/auth/csrf'
 import { decrypt } from '@/lib/auth/encryption'
 import { QuoteView } from '@/components/quote-view'
+import { TawkChat } from '@/components/tawk-chat'
 import { createAuditLog } from '@/lib/audit'
 import { getClientIP, getUserAgent } from '@/lib/server-utils'
 
@@ -136,6 +137,9 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
   // Decrypt client email for display
   const clientEmail = decrypt(client.email)
 
+  const tawkPropertyId = process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID
+  const tawkWidgetId = process.env.NEXT_PUBLIC_TAWK_WIDGET_ID
+
   return (
     <main className="min-h-screen bg-background">
       {isPreviewMode && (
@@ -144,6 +148,16 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
             Admin Preview Mode - Actions are disabled
           </span>
         </div>
+      )}
+      {!isPreviewMode && tawkPropertyId && tawkWidgetId && (
+        <TawkChat
+          propertyId={tawkPropertyId}
+          widgetId={tawkWidgetId}
+          user={{
+            name: client.contactName,
+            email: clientEmail,
+          }}
+        />
       )}
       <QuoteView
         client={{

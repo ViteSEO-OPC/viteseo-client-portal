@@ -14,8 +14,6 @@ export type ErrorCode =
   | 'VALIDATION_ERROR'
   | 'INTERNAL_ERROR'
   | 'CODE_INVALID'
-  | 'MESSAGE_TOO_LONG'
-  | 'MESSAGE_EMPTY'
 
 interface ErrorResponse {
   error: {
@@ -41,8 +39,6 @@ export const ERROR_MESSAGES: Record<ErrorCode, { status: number; message: string
   VALIDATION_ERROR: { status: 400, message: 'Invalid request data' },
   INTERNAL_ERROR: { status: 500, message: 'An unexpected error occurred' },
   CODE_INVALID: { status: 404, message: 'Invalid access code' }, // 404 to avoid info leakage
-  MESSAGE_TOO_LONG: { status: 400, message: 'Message exceeds maximum length' },
-  MESSAGE_EMPTY: { status: 400, message: 'Message cannot be empty' },
 }
 
 export function createErrorResponse(code: ErrorCode, requestId?: string): Response {
