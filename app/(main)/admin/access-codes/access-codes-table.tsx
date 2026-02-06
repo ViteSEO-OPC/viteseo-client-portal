@@ -109,11 +109,13 @@ export function AccessCodesTable({ data }: AccessCodesTableProps) {
   ]
 
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      keyExtractor={(code) => code.id}
-      emptyMessage="No access codes found"
-    />
+    <div suppressHydrationWarning>
+      <DataTable
+        columns={columns}
+        data={data}
+        keyExtractor={(code) => code.id}
+        emptyMessage="No access codes found"
+      />
+    </div>
   )
 }

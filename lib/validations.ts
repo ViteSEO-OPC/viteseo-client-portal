@@ -36,7 +36,7 @@ export const createQuoteSchema = z.object({
 export const createAccessCodeSchema = z.object({
   clientId: z.string().uuid(),
   quoteId: z.string().uuid().optional(),
-  expiresInHours: z.number().int().min(1).max(168).default(48), // 1 hour to 7 days
+  expiresInHours: z.number().int().min(1).max(2160).default(720), // 1 hour to 90 days
   maxUses: z.number().int().positive().default(1),
 })
 

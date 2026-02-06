@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -208,7 +208,11 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
     }
   }
 
-  const isExpired = new Date(quote.validUntil) < new Date()
+  const [isExpired, setIsExpired] = useState(false)
+  useEffect(() => {
+    setIsExpired(new Date(quote.validUntil) < new Date())
+  }, [quote.validUntil])
+
   const canEdit = quoteStatus === 'draft'
   const canSend = quoteStatus === 'draft' && !isExpired
   const canGenerateCode = quoteStatus === 'sent' || quoteStatus === 'viewed'
@@ -270,7 +274,7 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
               Copy
             </Button>
           </div>
-          <p className="text-xs text-blue-400/80 mt-2">
+          <p className="text-xs text-blue-400/80 mt-2" suppressHydrationWarning>
             Portal URL: {typeof window !== 'undefined' ? window.location.origin : ''}/enter-code
           </p>
         </div>
@@ -430,7 +434,7 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
                     <td className="py-2">
                       <code className="bg-muted px-2 py-1 rounded text-sm text-foreground">****{code.codeHint}</code>
                     </td>
-                    <td className="py-2">
+                    <td className="py-2" suppressHydrationWarning>
                       {code.revokedAt ? (
                         <span className="px-2 py-1 text-xs font-medium rounded bg-red-500/15 text-red-500">
                           Revoked

@@ -88,11 +88,13 @@ export function SessionsTable({ data }: SessionsTableProps) {
   ]
 
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      keyExtractor={(session) => session.id}
-      emptyMessage="No sessions found"
-    />
+    <div suppressHydrationWarning>
+      <DataTable
+        columns={columns}
+        data={data}
+        keyExtractor={(session) => session.id}
+        emptyMessage="No sessions found"
+      />
+    </div>
   )
 }

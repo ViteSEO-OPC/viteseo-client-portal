@@ -322,7 +322,7 @@ export function ClientEditForm({ client }: ClientEditFormProps) {
                     <td className="py-2">
                       <code className="bg-muted px-2 py-1 rounded text-sm text-foreground">****{code.codeHint ?? '****'}</code>
                     </td>
-                    <td className="py-2">
+                    <td className="py-2" suppressHydrationWarning>
                       {code.revokedAt ? (
                         <span className="px-2 py-1 text-xs font-medium rounded bg-red-500/15 text-red-500">
                           Revoked

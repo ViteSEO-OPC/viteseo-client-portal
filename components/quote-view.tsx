@@ -75,7 +75,11 @@ export function QuoteView({ client, quote, timezone, csrfToken, isPreviewMode = 
   }
 
   const canTakeAction = !isPreviewMode && (quoteStatus === 'viewed' || quoteStatus === 'sent')
-  const isExpired = new Date(quote.validUntil) < new Date()
+  const [isExpired, setIsExpired] = useState(false)
+
+  useEffect(() => {
+    setIsExpired(new Date(quote.validUntil) < new Date())
+  }, [quote.validUntil])
 
   // Combine errors
   const error =
