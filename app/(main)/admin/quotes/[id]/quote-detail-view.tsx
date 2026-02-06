@@ -8,6 +8,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Timeline } from '@/components/ui/timeline'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useUpdateQuote, useSendQuote, useGenerateAccessCode } from '@/lib/query/hooks'
 
@@ -85,6 +100,9 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
   const [generatedCode, setGeneratedCode] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [previewLoading, setPreviewLoading] = useState(false)
+  const [showCodeDialog, setShowCodeDialog] = useState(false)
+  const [codeExpiration, setCodeExpiration] = useState('720')
+  const [codeMaxUses, setCodeMaxUses] = useState('100')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -130,12 +148,13 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
       {
         clientId: quote.client.id,
         quoteId: quote.id,
-        expiresInHours: 48,
-        maxUses: 3,
+        expiresInHours: parseInt(codeExpiration),
+        maxUses: parseInt(codeMaxUses),
       },
       {
         onSuccess: (data) => {
           setGeneratedCode(data.code)
+          setShowCodeDialog(false)
           router.refresh()
         },
       }
@@ -272,11 +291,10 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
             )}
             {canGenerateCode && (
               <Button
-                onClick={handleGenerateAccessCode}
-                disabled={generateAccessCode.isPending}
+                onClick={() => setShowCodeDialog(true)}
                 variant="outline"
               >
-                {generateAccessCode.isPending ? 'Generating...' : 'Generate Access Code'}
+                Generate Access Code
               </Button>
             )}
             <Button
@@ -477,6 +495,61 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
           </dl>
         </CardContent>
       </Card>
+
+      {/* Generate Access Code Dialog */}
+      <Dialog open={showCodeDialog} onOpenChange={setShowCodeDialog}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Generate Access Code</DialogTitle>
+            <DialogDescription>
+              Create an access code for {quote.client.companyName} to view quote {quote.quoteNumber}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Expiration</Label>
+              <Select value={codeExpiration} onValueChange={setCodeExpiration}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent position="popper" className="z-[200] bg-zinc-900 border-zinc-700 shadow-2xl">
+                  <SelectItem value="24">24 hours</SelectItem>
+                  <SelectItem value="48">48 hours</SelectItem>
+                  <SelectItem value="168">7 days</SelectItem>
+                  <SelectItem value="720">30 days</SelectItem>
+                  <SelectItem value="2160">90 days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Max Uses</Label>
+              <Select value={codeMaxUses} onValueChange={setCodeMaxUses}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent position="popper" className="z-[200] bg-zinc-900 border-zinc-700 shadow-2xl">
+                  <SelectItem value="3">3 uses</SelectItem>
+                  <SelectItem value="10">10 uses</SelectItem>
+                  <SelectItem value="50">50 uses</SelectItem>
+                  <SelectItem value="100">100 uses</SelectItem>
+                  <SelectItem value="999">Unlimited</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCodeDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleGenerateAccessCode}
+              disabled={generateAccessCode.isPending}
+            >
+              {generateAccessCode.isPending ? 'Generating...' : 'Generate Code'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

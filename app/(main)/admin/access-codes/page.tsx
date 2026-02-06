@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Pagination } from '@/components/ui/data-table'
 import { AccessCodesTable } from './access-codes-table'
 import { AccessCodesFilter } from './access-codes-filter'
+import { GenerateCodeDialog } from './generate-code-dialog'
 
 export default async function AccessCodesPage({
   searchParams,
@@ -44,7 +45,16 @@ export default async function AccessCodesPage({
     }),
     prisma.accessCode.count({ where }),
     prisma.client.findMany({
-      select: { id: true, companyName: true },
+      where: { status: 'active' },
+      select: {
+        id: true,
+        companyName: true,
+        quotes: {
+          where: { status: { in: ['sent', 'viewed', 'accepted', 'rejected'] } },
+          select: { id: true, quoteNumber: true, status: true },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
       orderBy: { companyName: 'asc' },
     }),
   ])
@@ -54,8 +64,11 @@ export default async function AccessCodesPage({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold font-heading text-foreground">Access Codes</h2>
-        <p className="text-sm text-muted-foreground">{total} total codes</p>
+        <div>
+          <h2 className="text-2xl font-bold font-heading text-foreground">Access Codes</h2>
+          <p className="text-sm text-muted-foreground">{total} total codes</p>
+        </div>
+        <GenerateCodeDialog clients={clients} />
       </div>
 
       {/* Filters */}

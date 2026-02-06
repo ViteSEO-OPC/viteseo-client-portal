@@ -309,7 +309,7 @@ export default async function PdfRenderPage({ searchParams }: PdfRenderPageProps
         {/* Footer */}
         <div className="footer">
           <p>Thank you for your business</p>
-          <p>Vite SEO Digital Advertising OPC</p>
+          <p><strong>Vite SEO Digital Advertising OPC</strong></p>
         </div>
       </div>
     </div>
