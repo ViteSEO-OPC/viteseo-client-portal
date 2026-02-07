@@ -17,6 +17,15 @@ export default async function QuotesPage() {
     },
   })
 
+  // Serialize dates for client component
+  const serialized = quotes.map((q) => ({
+    ...q,
+    total: q.total.toString(),
+    validUntil: q.validUntil.toISOString(),
+    createdAt: q.createdAt.toISOString(),
+    updatedAt: q.updatedAt.toISOString(),
+  }))
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -28,7 +37,7 @@ export default async function QuotesPage() {
 
       <Card>
         <CardContent className="pt-6">
-          <QuotesTable data={quotes} />
+          <QuotesTable data={serialized} />
         </CardContent>
       </Card>
     </div>

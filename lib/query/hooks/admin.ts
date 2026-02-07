@@ -13,8 +13,11 @@ import type {
   UpdateClientPayload,
   QuoteListItem,
   QuoteDetail,
+  QuoteItemData,
   CreateQuotePayload,
   UpdateQuotePayload,
+  AddQuoteItemPayload,
+  UpdateQuoteItemPayload,
   GenerateAccessCodePayload,
   GenerateAccessCodeResponse,
 } from '../types'
@@ -250,6 +253,75 @@ export function useSendQuote(quoteId: string) {
       }
     },
     onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.quotes.detail(quoteId),
+      })
+      queryClient.invalidateQueries({ queryKey: queryKeys.quotes.lists() })
+    },
+  })
+}
+
+/**
+ * Delete a draft quote
+ */
+export function useDeleteQuote() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (quoteId: string) =>
+      api.delete<{ success: boolean }>(`/api/admin/quotes/${quoteId}`, false),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.quotes.lists() })
+    },
+  })
+}
+
+/**
+ * Add an item to a draft quote
+ */
+export function useAddQuoteItem(quoteId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: AddQuoteItemPayload) =>
+      api.post<QuoteItemData>(`/api/admin/quotes/${quoteId}/items`, data, false),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.quotes.detail(quoteId),
+      })
+      queryClient.invalidateQueries({ queryKey: queryKeys.quotes.lists() })
+    },
+  })
+}
+
+/**
+ * Update an item on a draft quote
+ */
+export function useUpdateQuoteItem(quoteId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ itemId, data }: { itemId: string; data: UpdateQuoteItemPayload }) =>
+      api.put<QuoteItemData>(`/api/admin/quotes/${quoteId}/items/${itemId}`, data, false),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.quotes.detail(quoteId),
+      })
+      queryClient.invalidateQueries({ queryKey: queryKeys.quotes.lists() })
+    },
+  })
+}
+
+/**
+ * Delete an item from a draft quote
+ */
+export function useDeleteQuoteItem(quoteId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (itemId: string) =>
+      api.delete<{ success: boolean }>(`/api/admin/quotes/${quoteId}/items/${itemId}`, false),
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.quotes.detail(quoteId),
       })

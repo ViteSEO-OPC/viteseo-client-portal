@@ -130,6 +130,21 @@ export interface UpdateQuotePayload {
   status?: 'draft' | 'sent' | 'expired' | 'superseded'
 }
 
+export interface AddQuoteItemPayload {
+  name: string
+  description?: string
+  quantity: number
+  unitPrice: number
+}
+
+export interface UpdateQuoteItemPayload {
+  name?: string
+  description?: string
+  quantity?: number
+  unitPrice?: number
+  sortOrder?: number
+}
+
 export interface GenerateAccessCodePayload {
   clientId: string
   quoteId?: string
