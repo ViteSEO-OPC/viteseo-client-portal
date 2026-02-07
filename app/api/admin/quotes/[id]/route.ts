@@ -166,6 +166,61 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
+// Delete a draft quote
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  const requestId = generateRequestId()
+  const ip = await getClientIP()
+  const userAgent = await getUserAgent()
+  const { id } = await params
+
+  try {
+    const { userId } = await auth()
+    if (!userId) {
+      return createErrorResponse('UNAUTHORIZED', requestId)
+    }
+
+    const { success } = await adminRateLimit.limit(ip)
+    if (!success) {
+      return createErrorResponse('RATE_LIMITED', requestId)
+    }
+
+    const existing = await prisma.quote.findUnique({ where: { id } })
+    if (!existing) {
+      return createErrorResponse('QUOTE_NOT_FOUND', requestId)
+    }
+
+    if (existing.status !== 'draft') {
+      return Response.json(
+        { error: { code: 'VALIDATION_ERROR', message: 'Can only delete draft quotes' } },
+        { status: 400 }
+      )
+    }
+
+    // Delete in order: items, access codes, tokens, then quote
+    await prisma.quoteItem.deleteMany({ where: { quoteId: id } })
+    await prisma.accessCode.deleteMany({ where: { quoteId: id } })
+    await prisma.pdfRenderToken.deleteMany({ where: { quoteId: id } })
+    await prisma.quote.delete({ where: { id } })
+
+    await createAuditLog({
+      eventType: 'QUOTE_UPDATED',
+      actorType: 'admin',
+      actorId: userId,
+      action: `Deleted draft quote ${existing.quoteNumber}`,
+      resourceType: 'quote',
+      resourceId: id,
+      ipAddress: ip,
+      userAgent,
+      meta: { quoteNumber: existing.quoteNumber },
+    })
+
+    return Response.json({ success: true })
+  } catch (error) {
+    console.error('Delete quote error:', error)
+    return createErrorResponse('INTERNAL_ERROR', requestId)
+  }
+}
+
 // Special endpoint for sending quotes
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const requestId = generateRequestId()

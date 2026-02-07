@@ -62,6 +62,10 @@ Seven layers: Edge (CloudFlare WAF) → Transport (HTTPS/TLS 1.3) → Applicatio
 - Quotes immutable after SENT status (modifications create new versions)
 - Unauthenticated requests return 404 (not 401/403) to avoid information leakage
 - PDF tokens are short-lived (60s TTL, single-use)
+- Admin preview tokens: 5-minute TTL
+
+### Middleware Routing
+Clerk middleware protects `/admin(.*)` routes (redirects unauthenticated users to sign-in). All API responses get `Cache-Control: no-store` headers. Security headers applied globally. Client portal auth is session-based (not middleware-enforced — validated in API routes/server components).
 
 ### Data Model
 Core entities: `clients`, `quotes`, `quote_items`, `access_codes`, `sessions`, `pdf_render_tokens`, `admin_preview_tokens`, `audit_logs`, `pdf_cache`
@@ -87,11 +91,19 @@ Run `npm run sync:quotes` to sync changes. Immutable quotes (SENT or later) crea
 | `POST /api/auth/verify-code` | Public | OTP verification |
 | `GET /api/portal/me` | Client | Get profile |
 | `GET /api/portal/quote` | Client | Get quote |
+| `POST /api/portal/quote/accept` | Client | Accept a quote |
+| `POST /api/portal/quote/reject` | Client | Reject a quote |
 | `POST /api/portal/pdf` | Client | Initiate PDF generation |
 | `GET /api/portal/pdf/render` | Token | Render PDF (Playwright) |
-| `/api/admin/*` | Admin | CRUD operations |
+| `/api/admin/clients/*` | Admin | Client CRUD |
+| `/api/admin/quotes/*` | Admin | Quote CRUD |
+| `/api/admin/quotes/[id]/items/*` | Admin | Quote item CRUD |
+| `/api/admin/access-codes/*` | Admin | Access code management |
+| `/api/admin/sessions/*` | Admin | Session management |
+| `/api/admin/audit-logs` | Admin | View audit logs |
+| `POST /api/admin/preview` | Admin | Generate admin preview token |
 | `GET /api/health` | Public | Health check |
-| `GET /api/cron/cleanup` | Cron | Cleanup expired data |
+| `GET /api/cron/cleanup` | Cron | Cleanup expired data (daily 2AM UTC) |
 
 ### Rate Limiting
 - OTP verification: 5 attempts/15min, 30min lockout after failures
@@ -138,16 +150,30 @@ python3 .agents/skills/ui-ux-pro-max/scripts/search.py "<keyword>" --stack nextj
 python .agents/skills/webapp-testing/scripts/with_server.py --server "npm run dev" --port 3000 -- python automation.py
 ```
 
+## Utility Scripts
+
+```bash
+# Create access code for a client
+tsx scripts/create-access-code.ts <clientSlug> <plainCode>
+
+# Rehash a client email
+tsx scripts/rehash-client-email.ts <portalSlug> <email>
+```
+
+Access code format: exactly 8 characters from `ABCDEFGHJKLMNPQRSTUVWXYZ23456789` (excludes 0/O, 1/I/l to avoid ambiguity).
+
 ## Security Requirements
 
 When implementing features:
 - Use `crypto.timingSafeEqual` for OTP comparison with 200-500ms artificial delay
-- Hash OTPs with Argon2id before storage
+- Hash OTPs with Argon2id before storage (memoryCost=65536, timeCost=3, parallelism=4)
 - Rotate session ID after successful OTP verification
 - Limit concurrent sessions to 2 per client
 - Store all timestamps in UTC, display in client timezone
-- Use double-submit cookie pattern for CSRF protection
-- All client PII fields must be encrypted at rest (use `lib/auth/encryption.ts`)
+- Use double-submit cookie pattern for CSRF protection (HMAC-signed)
+- All client PII fields must be encrypted at rest (AES-256-GCM via `lib/auth/encryption.ts`)
+- Session cookie: `__vite_session`, max age 4 hours
+- CSRF cookie: `__csrf_token`
 
 ## Environment Variables
 
@@ -159,6 +185,9 @@ Required for production:
 - `APP_URL` - Full application URL
 - `SESSION_SECRET` - Session token signing (32+ chars)
 - `ENCRYPTION_KEY` - PII field encryption (32+ chars)
+- `CSRF_SECRET` - CSRF token signing (falls back to SESSION_SECRET if unset)
+- `CRON_SECRET` - Authenticates Vercel cron job requests
+- `PDF_RENDER_BASE_URL` - Internal URL for Playwright PDF access
 - `SENTRY_DSN` - Error monitoring
 
 Optional:
@@ -180,6 +209,14 @@ npm run test:e2e
 # Run E2E tests headed (see browser)
 npx playwright test --headed
 ```
+
+## Vercel Configuration
+
+- Deployment region: `sin1` (Singapore)
+- PDF render route: 30s timeout, 1024MB memory (`app/api/portal/pdf/render/route.ts`)
+- Cron: `/api/cron/cleanup` runs daily at 2AM UTC
+- All routes served with `X-Robots-Tag: noindex, nofollow, noarchive` (private portal, not indexed)
+- Node.js >= 18.17.0 required
 
 ## Deployment
 
