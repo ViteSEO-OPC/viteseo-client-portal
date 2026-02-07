@@ -53,9 +53,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return createErrorResponse('QUOTE_NOT_FOUND', requestId)
     }
 
-    if (quote.status !== 'draft') {
+    const terminalStatuses = ['accepted', 'rejected', 'expired', 'superseded']
+    if (terminalStatuses.includes(quote.status)) {
       return Response.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Can only add items to draft quotes' } },
+        { error: { code: 'VALIDATION_ERROR', message: 'Cannot modify items on a finalized quote' } },
         { status: 400 }
       )
     }

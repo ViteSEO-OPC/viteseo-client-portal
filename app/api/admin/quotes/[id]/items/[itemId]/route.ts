@@ -56,14 +56,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return createErrorResponse('VALIDATION_ERROR', requestId)
     }
 
-    // Check quote is draft
+    // Check quote exists and is editable
     const quote = await prisma.quote.findUnique({ where: { id: quoteId } })
     if (!quote) {
       return createErrorResponse('QUOTE_NOT_FOUND', requestId)
     }
-    if (quote.status !== 'draft') {
+    const terminalStatuses = ['accepted', 'rejected', 'expired', 'superseded']
+    if (terminalStatuses.includes(quote.status)) {
       return Response.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Can only edit items on draft quotes' } },
+        { error: { code: 'VALIDATION_ERROR', message: 'Cannot modify items on a finalized quote' } },
         { status: 400 }
       )
     }
@@ -129,14 +130,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return createErrorResponse('RATE_LIMITED', requestId)
     }
 
-    // Check quote is draft
+    // Check quote exists and is editable
     const quote = await prisma.quote.findUnique({ where: { id: quoteId } })
     if (!quote) {
       return createErrorResponse('QUOTE_NOT_FOUND', requestId)
     }
-    if (quote.status !== 'draft') {
+    const terminalStatuses = ['accepted', 'rejected', 'expired', 'superseded']
+    if (terminalStatuses.includes(quote.status)) {
       return Response.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Can only delete items on draft quotes' } },
+        { error: { code: 'VALIDATION_ERROR', message: 'Cannot modify items on a finalized quote' } },
         { status: 400 }
       )
     }

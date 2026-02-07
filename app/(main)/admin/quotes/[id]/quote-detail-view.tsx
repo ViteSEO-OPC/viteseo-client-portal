@@ -369,7 +369,8 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
     setIsExpired(new Date(quote.validUntil) < new Date())
   }, [quote.validUntil])
 
-  const canEdit = quoteStatus === 'draft'
+  const editableStatuses = ['draft', 'sent', 'viewed']
+  const canEdit = editableStatuses.includes(quoteStatus)
   const canSend = quoteStatus === 'draft' && !isExpired
   const canDelete = quoteStatus === 'draft'
   const canGenerateCode = quoteStatus === 'sent' || quoteStatus === 'viewed'
@@ -465,7 +466,13 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
             })}
           </div>
 
-          {/* Disabled state messaging */}
+          {/* Status messaging */}
+          {(quoteStatus === 'sent' || quoteStatus === 'viewed') && (
+            <p className="text-sm text-yellow-400 text-center border-t pt-3 mt-2 flex items-center justify-center gap-1.5">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              This quote has been {quoteStatus === 'viewed' ? 'viewed by the client' : 'sent'}. Changes will be visible to the client immediately.
+            </p>
+          )}
           {!canEdit && (
             <p className="text-sm text-muted-foreground text-center border-t pt-3 mt-2">
               {quoteStatus === 'accepted'
@@ -474,9 +481,7 @@ export function QuoteDetailView({ quote, activityLogs }: QuoteDetailViewProps) {
                   ? 'This quote has been rejected and cannot be modified.'
                   : quoteStatus === 'expired'
                     ? 'This quote has expired. Create a new version to continue.'
-                    : quoteStatus === 'sent' || quoteStatus === 'viewed'
-                      ? 'This quote has been sent and can no longer be edited.'
-                      : 'This quote cannot be modified in its current state.'}
+                    : 'This quote cannot be modified in its current state.'}
             </p>
           )}
         </CardContent>
